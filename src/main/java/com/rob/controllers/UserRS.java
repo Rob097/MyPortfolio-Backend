@@ -4,12 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rob.dto.models.UserR;
 import com.rob.models.User;
 import com.rob.services.IUserService;
 
@@ -41,6 +45,12 @@ public class UserRS {
 	public @ResponseBody Iterable<User> getAllUsers() {
 		// This returns a JSON or XML with the users
 		return userService.findAll();
+	}
+	
+	@RequestMapping(value = "/{username}", method = RequestMethod.GET, produces = "application/json")
+	public @ResponseBody UserR getAllUsers(@PathVariable("username") String username) {
+		// This returns a JSON or XML with the users
+		return (UserR) userService.loadUserByUsername(username);
 	}
 
 }
