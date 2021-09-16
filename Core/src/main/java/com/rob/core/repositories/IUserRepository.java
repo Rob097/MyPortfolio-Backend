@@ -3,7 +3,7 @@ package com.rob.core.repositories;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.rob.authentication.models.User;
+import com.rob.core.models.User;
 
 
 //This will be AUTO IMPLEMENTED by Spring into a Bean called userRepository

@@ -22,17 +22,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rob.authentication.dto.mappers.UserMapper;
-import com.rob.authentication.dto.models.UserR;
 import com.rob.core.models.Role;
-import com.rob.core.payload.request.LoginRequest;
-import com.rob.core.payload.request.SignupRequest;
-import com.rob.core.payload.response.JwtResponse;
-import com.rob.core.payload.response.MessageResponse;
-import com.rob.core.security.configuration.Properties;
-import com.rob.core.security.jwt.JwtUtils;
+import com.rob.core.models.User;
 import com.rob.core.services.IRoleService;
 import com.rob.core.services.UserService;
+import com.rob.core.utils.Properties;
+import com.rob.security.jwt.JwtUtils;
+import com.rob.security.payloads.request.LoginRequest;
+import com.rob.security.payloads.request.SignupRequest;
+import com.rob.security.payloads.response.JwtResponse;
+import com.rob.security.payloads.response.MessageResponse;
+import com.rob.uiapi.dto.models.UserR;
 
 @CrossOrigin(origins = "*", maxAge = 3600, allowCredentials = "false")
 @RestController
@@ -48,14 +48,11 @@ public class AuthRS {
 	private PasswordEncoder encoder;
 
 	@Autowired
-	private UserMapper userMapper;
-
-	@Autowired
 	private JwtUtils jwtUtils;
 
 	@Autowired
 	UserService userService;
-	
+
 	@Autowired
 	IRoleService roleService;
 
@@ -85,14 +82,14 @@ public class AuthRS {
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest,
 			HttpServletResponse response) {
 		Authentication authentication;
-		UserR user = null;
+		User user = null;
 
 		try {
 
 			authentication = authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-			user = (UserR) userService.loadUserByUsername(loginRequest.getUsername());
+			user = (User) userService.loadUserByUsername(loginRequest.getUsername());
 
 			/*
 			 * Important! Setting default user database.
@@ -108,16 +105,17 @@ public class AuthRS {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String token = jwtUtils.generateJwtToken(authentication, loginRequest.isRememberMe(), "" + user.getId());
 
-		UserR userDetails = (UserR) authentication.getPrincipal();
+		User userDetails = (User) authentication.getPrincipal();
 		List<Role> roles = roleService.findAllByUserId(userDetails.getId());
-		//List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
+		// List<String> roles = userDetails.getAuthorities().stream().map(item ->
+		// item.getAuthority()).collect(Collectors.toList());
 
 		if (setCookie(loginRequest.isRememberMe(), token, response)) {
 			if (token_cookie != null)
 				response.addCookie(token_cookie);
 			if (remember_cookie != null)
 				response.addCookie(remember_cookie);
-			return ResponseEntity.ok(new JwtResponse(token, ""+userDetails.getId(), userDetails.getUsername(),
+			return ResponseEntity.ok(new JwtResponse(token, "" + userDetails.getId(), userDetails.getUsername(),
 					userDetails.getEmail(), roles));
 		}
 
@@ -198,7 +196,7 @@ public class AuthRS {
 			UserR user = new UserR(signUpRequest.getUsername(), signUpRequest.getEmail(),
 					encoder.encode(signUpRequest.getPassword()));
 
-			//Set<String> strRoles = signUpRequest.getRoles();
+			// Set<String> strRoles = signUpRequest.getRoles();
 			// Set<Role> roles = new HashSet<>();
 
 			/*
@@ -219,7 +217,7 @@ public class AuthRS {
 			 * user.setRoles(roles);
 			 */
 			// Save user into user collection in general DB for authentication
-			/*User u = */userService.save(userMapper.map(user));
+			/* User u = userService.save(userMapper.map(user)); */
 
 			// Save user into Utente collection in the personal database of the user
 			// userService.setDefaultUserDb(u.getId());

@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import com.rob.authentication.enums.ERole;
+import com.rob.core.models.enums.ERole;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

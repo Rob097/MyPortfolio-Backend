@@ -13,19 +13,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.rob.core.models.User;
 import com.rob.core.repositories.IUserRepository;
-import com.rob.authentication.dto.mappers.UserRMapper;
-import com.rob.authentication.dto.models.UserR;
-import com.rob.authentication.models.User;
 
 @Service
 public class UserService implements IUserService, UserDetailsService {
 
 	@Autowired
     private IUserRepository userRepository;
-	
-	@Autowired
-    private UserRMapper userRMapper;
 	
 	@PersistenceContext
     EntityManager entityManager;
@@ -59,14 +54,8 @@ public class UserService implements IUserService, UserDetailsService {
         User user = null;
         
         user = (User) query.getResultList().iterator().next();
-
-        UserR userR = null;
         
-        if(user != null){
-        	userR = userRMapper.map(user);
-        }
-        
-		return userR;
+		return user;
 	}
 
 }

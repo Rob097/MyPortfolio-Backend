@@ -12,9 +12,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rob.authentication.dto.models.UserR;
-import com.rob.authentication.models.User;
+import com.rob.core.models.User;
 import com.rob.core.services.IUserService;
+
+
+/*
+ * 
+ * COMPLETAMENTE DA RIFARE SECONDO I NUOVI STANDARD
+ * 
+ * 
+ * */
+
+
+
 
 @CrossOrigin(origins = "*", maxAge = 3600, allowCredentials = "false")
 @Controller
@@ -47,9 +57,9 @@ public class UserRS {
 	}
 	
 	@RequestMapping(value = "/{username}", method = RequestMethod.GET, produces = "application/json")
-	public @ResponseBody UserR getAllUsers(@PathVariable("username") String username) {
+	public @ResponseBody User getAllUsers(@PathVariable("username") String username) {
 		// This returns a JSON or XML with the users
-		return (UserR) userService.loadUserByUsername(username);
+		return (User) userService.loadUserByUsername(username);
 	}
 
 }

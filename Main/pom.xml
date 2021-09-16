@@ -11,10 +11,15 @@
 	<name>main</name>
 
 	<dependencies>
+		<!-- This dependency is mandatory because this module contain the main 
+			application file -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+
+		<!-- Modules that this project needs to include. IMPORTANT: This module 
+			needs to include all the other modules -->
 		<dependency>
 			<groupId>com.rob</groupId>
 			<artifactId>Sec-Auth-Conf</artifactId>
@@ -29,9 +34,10 @@
 			<groupId>com.rob</groupId>
 			<artifactId>Ui-Api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>		
+		</dependency>
 	</dependencies>
-	
+
+	<!-- START BUILD PROTOCOL -->
 	<build>
 		<plugins>
 			<plugin>
@@ -64,5 +70,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+	<!-- END BUILD PROTOCOL -->
+
 </project>

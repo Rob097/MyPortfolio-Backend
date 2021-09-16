@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import com.rob.authentication.models.User;
+import com.rob.core.models.User;
 
 
 public interface IUserService {

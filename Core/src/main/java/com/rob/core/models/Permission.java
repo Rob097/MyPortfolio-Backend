@@ -9,8 +9,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 
-import com.rob.authentication.enums.EPermission;
+
 import com.rob.core.models.Permission;
+import com.rob.core.models.enums.EPermission;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
