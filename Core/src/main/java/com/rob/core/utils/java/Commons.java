@@ -2,14 +2,8 @@ package com.rob.core.utils.java;
 
 import static java.lang.Math.abs;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.sql.Clob;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -17,8 +11,6 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -106,12 +98,6 @@ public class Commons {
 	
 	/** Formato anno 4 cifre */
 	public static final String FORMAT_YEAR = "yyyy";
-	
-	/** Label del token per il recupero delle UO di appartenza dell'utente **/
-	public static final String SERVICE_LABEL_UE_APPARTENENZA = "APPARTENENZA";
-	
-	/** Label del token per il recupero delle UO di afferenza dell'utente in caso si tratti di responsabile di dipartimento **/
-	public static final String SERVICE_LABEL_UE_AFFERENZA = "AFFERENZA";
 
 	/** Charset (as string) attualmente utilizzato nell'applicazione*/
 	public static final String CURRENT_ENCODING = "ISO-8859-1";
@@ -121,45 +107,6 @@ public class Commons {
 	
 	/** Charset UTF-8 */
 	public static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
-	/** Colors */
-	public static final String BOOKED_IMAGE ="core/images/blu.gif";
-	public static final String BOOKED_COLOR ="BBCCFF";
-	
-	public static final String ERROR_IMAGE ="core/images/red.gif";
-	public static final String ERROR_COLOR ="FFB8A1";
-	
-	public static final String WARNING_IMAGE ="core/images/yellow2.gif";
-	public static final String WARNING_COLOR ="FFFFBF";
-	
-	public static final String DELETED_IMAGE ="core/images/red.gif";
-	public static final String DELETED_COLOR ="FFB8A1";
-	
-	public static final String SUSPENDED_IMAGE ="core/images/gray.gif";
-	public static final String SUSPENDED_COLOR ="E0E0E0";
-	
-	public static final String EROGATED_IMAGE ="core/images/green.gif";
-	public static final String EROGATED_COLOR ="CCFFBB";
-	
-	public static final String MOVED_IMAGE ="core/images/blue.gif";
-	public static final String MOVED_COLOR ="3776CB";
-	
-	public static final String NOT_EROGATED_IMAGE ="core/images/yellow2.gif";
-	public static final String NOT_EROGATED_COLOR ="FFFFBF";
-
-	public static final String NOT_CONFIRMED_IMAGE ="core/images/orange.gif";
-	public static final String NOT_CONFIRMED_COLOR ="FFB600";
-	
-	public static final String WL_BOOKING_ACTIVE_IMAGE="core/images/violet.gif";
-	public static final String WL_BOOKING_ACTIVE_COLOR="A020F0";
-	
-	public static final String WL_BOOKING_DELETED_IMAGE="core/images/red_locked.gif";
-	public static final String WL_BOOKING_DELETED_COLOR="FF0000";
-	
-	public static final String PARTIALLY_EROGATED_IMAGE ="core/images/dark_blue.gif";
-	public static final String PARTIALLY_EROGATED_COLOR ="0000CC";
-	
-	public static final String YELLOW_WARNING_IMAGE = "core/images/yellow_warning.gif";
-	public static final String YELLOW_WARNING = "f9d74d";
 	
 	/** Unita' di misura per il risultato della funzione dateDiff */
 	public enum DateDiffUnit {
@@ -171,10 +118,7 @@ public class Commons {
 	public static final String[] TRUE_VALUES = new String[] {"TRUE","1","SI","S","YES","Y"};
 	
 	
-	/**
-	 * AC Fecit 12/06/2014
-	 * In seguito alla modifica del token, causa interfacciamento AOUI VERONA
-	 * 
+	/** 
 	 * Questo metodo si occupa di verificare una stringa sia numerica o meno
 	 * @param value
 	 * @return True nel cso in cui stringa numerica, False altrimenti.
@@ -287,287 +231,6 @@ public class Commons {
 		nfc.setGroupingUsed(false);
 
 		return nfc.format(amount);
-	}
-	
-	/** Restituisce l'eta' della persona in anni */
-	public static int getAgeYears(GregorianCalendar birthDate) {
-		if (birthDate==null) {
-			return -1;
-		}
-		
-		int age;
-		GregorianCalendar today = new GregorianCalendar();
-		GregorianCalendar birthVer = new GregorianCalendar();
-		resetTime(today);
-
-		// calcolo dell'eta' (considerando la presenza degli anni bisestili)
-		age = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR);
-		birthVer.setTime(birthDate.getTime());
-		birthVer.set(Calendar.YEAR, today.get(Calendar.YEAR));
-
-		// Se il compleanno non c'e' ancora stato in questo anno allora toglie un
-		// anno al risultato
-		if (today.getTimeInMillis() < birthVer.getTimeInMillis()) {
-			age--;
-		}
-
-		return age;
-	}
-	
-	
-	/** Restituisce l'eta' della persona in anni */
-	public static int getAgeYears(Calendar birthDate) {
-		if (birthDate==null) {
-			return -1;
-		}
-		
-		GregorianCalendar gBirth = new GregorianCalendar();
-		gBirth.setTime(birthDate.getTime());		
-		return getAgeYears(gBirth);
-	}
-	
-	/**
-	 * Restituisce l'eta' della persona in anni
-	 * 
-	 * @param birthDate
-	 *          String data di nascita
-	 * @return int L'eta' della persona
-	 */
-	public static int getAgeYears(String birthDate) {
-
-		if (StringUtils.isEmpty(birthDate)) {
-			return -1;
-		}
-
-		// data di nascita
-		GregorianCalendar birth = new GregorianCalendar();
-		try {
-			birth.setTime((new SimpleDateFormat("dd/MM/yyyy")).parse(birthDate));
-		} catch (ParseException pe) {
-			Logger logger = org.slf4j.LoggerFactory.getLogger("");
-			logger.error("Errore nella formattazione della data, durante il calcolo dell'eta'" + pe.getMessage());
-			return 0;
-		}
-		
-		return getAgeYears(birth);		
-	}
-	
-	/** Restituisce l'eta' della persona al parametro AGE_FORMAT 0 eta' in anni - se 1 eta' in mesi
-	 * 
-	 * @param birthDate
-	 *          String data di nascita formato "dd/MM/yyyy"
-	 * @return int L'eta' della persona
-	 */
-	public static int getAgeInMonths(String birthDate, String ageFormat) {
-		//Data non fornita
-		if (StringUtils.isEmpty(birthDate)) {
-			return -1;
-		}
-
-		// Parse data di nascita
-		GregorianCalendar birth = new GregorianCalendar();
-		try {
-			birth.setTime((new SimpleDateFormat("dd/MM/yyyy")).parse(birthDate));
-		} catch (ParseException pe) {
-			Logger logger = org.slf4j.LoggerFactory.getLogger("");
-			logger.error("Errore nella formattazione della data, durante il calcolo dell'eta'" + pe.getMessage());
-			return 0;
-		}
-		
-		//Restituisce l'eta' del paziente
-		return getAgeInMonths(birth, ageFormat);
-	}
-	
-	/**
-	 * Restituisce l'eta' della persona al parametro AGE_FORMAT 0 eta' in anni - se 1 eta' in mesi
-	 * 
-	 * @param birth
-	 *          data di nascita
-	 * @return int L'eta' della persona
-	 */
-	public static int getAgeInMonths(Date birth, String ageFormat) {
-		if (birth==null) {
-			return -1;
-		}
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(birth);
-		
-		//Restituisce l'eta' del paziente
-		return getAgeInMonths(birth, ageFormat);
-	}
-	
-
-	/**
-	 * Restituisce l'eta' della persona al parametro AGE_FORMAT 0 eta' in anni - se 1 eta' in mesi
-	 * 
-	 * @param birth
-	 *          data di nascita
-	 * @return int L'eta' della persona
-	 */
-	public static int getAgeInMonths(Calendar birth, String ageFormat) {
-
-		int result = -1;
-		if(ageFormat.equals("1")) {
-			result = getAgeInMonths(birth);			
-		}else if(ageFormat.equals("0")) {
-			result = getAgeInYears(birth);
-		}
-		
-		return result;
-	}
-	
-	
-	/**
-	 * Restituisce l'eta' della persona in mesi
-	 * 
-	 * @param birth
-	 *          data di nascita
-	 * @return int L'eta' della persona
-	 */
-	public static int getAgeInMonths(Calendar _birthDate) {
-		
-		LocalDate birthDate = toLocalDate(_birthDate);
-		LocalDate today = toLocalDate(Calendar.getInstance());
-				
-		long monthsBetween = ChronoUnit.MONTHS.between(birthDate, today);
-
-		//Note, however, that large numbers (usually larger than 2147483647 and smaller than -2147483648) will lose some of the bits and would be represented incorrectly.
-		return (int)monthsBetween;
-	}
-	
-	/**
-	 * Restituisce l'eta' della persona in anni
-	 * 
-	 * @param birth
-	 *          data di nascita
-	 * @return int L'eta' della persona
-	 */
-	public static int getAgeInYears(Calendar _birthDate) {
-		
-		LocalDate birthDate = toLocalDate(_birthDate);
-		LocalDate today = toLocalDate(Calendar.getInstance());
-				
-		long yearsBetween = ChronoUnit.YEARS.between(birthDate, today);
-
-		//Note, however, that large numbers (usually larger than 2147483647 and smaller than -2147483648) will lose some of the bits and would be represented incorrectly.
-		return (int)yearsBetween;
-	}
-
-	/**
-	 * Restituisce l'eta' della persona (solo persone fisiche).
-	 * 
-	 * @param birthDate
-	 *          String data di nascita
-	 * @return String L'eta' della persona (solo persone fisiche).
-	 */
-	public static String getAge(String birthDate) {
-		return getAge(birthDate, false);
-	}
-
-	/**
-	 * Restituisce l'eta' della persona (solo persone fisiche).
-	 * 
-	 * @param birthDate
-	 *          String data di nascita
-	 * @param longFormat
-	 *          boolean imposta la scrittura estesa dell'unita di misura dell'eta
-	 *          (mesi, giorni, anni)
-	 * @return String L'eta' della persona (solo persone fisiche).
-	 */
-	public static String getAge(String birthDate, boolean longFormat) {
-		return getAge(birthDate, longFormat, null);
-	}
-
-	/**
-	 * Restituisce l'et� della persona (solo persone fisiche).
-	 * 
-	 * @param birthDate
-	 *          String data di nascita
-	 * @param longFormat
-	 *          boolean imposta la scrittura estesa dell'unita di misura dell'eta'
-	 *          (mesi, giorni, anni)
-	 * @param deathDate la data di decesso
-	 * @return String L'et� della persona (solo persone fisiche).
-	 */
-	public static String getAge(String birthDate, boolean longFormat, String deathDate) {
-
-		int age;
-		GregorianCalendar today = new GregorianCalendar();
-		GregorianCalendar birth = new GregorianCalendar();
-		GregorianCalendar birthVer = new GregorianCalendar();
-		String ageResult = "0";
-
-		//Imposto la data odierna alla data di decesso
-		if(StringUtils.isNotEmpty(deathDate)){
-			try {
-				today.setTime((new SimpleDateFormat("dd/MM/yyyy")).parse(deathDate));	
-			} catch (ParseException e) {
-				Logger logger = org.slf4j.LoggerFactory.getLogger("");
-				logger.error("Errore nella formattazione della data decesso, durante il calcolo dell'eta'" + e.getMessage());
-				today = new GregorianCalendar();
-			}
-		}
-		
-		// data di nascita
-		try {
-			birth.setTime((new SimpleDateFormat("dd/MM/yyyy")).parse(birthDate));
-		} catch (ParseException pe) {
-			Logger logger = org.slf4j.LoggerFactory.getLogger("");
-			logger.error("Errore nella formattazione della data, durante il calcolo dell'eta'" + pe.getMessage());
-			return "0";
-		}
-
-		// calcolo dell'eta' (considerando la presenza degli anni bisestili)
-		age = today.get(Calendar.YEAR) - birth.get(Calendar.YEAR);
-		birthVer.setTime(birth.getTime());
-		birthVer.set(Calendar.YEAR, today.get(Calendar.YEAR));
-
-		// Se il compleanno non c'e' ancora stato in questo anno allora toglie un
-		// anno al risultato
-		if (today.getTimeInMillis() < birthVer.getTimeInMillis()) {
-			age--;
-		}
-
-		if (age < 0) {
-			age = 0;
-		}
-		ageResult = String.valueOf(age);
-
-		if (age < 2) {
-
-			// se l'eta' e' inferiore a 2 anni calcolo in mesi
-			int months = (today.get(Calendar.YEAR) - birth.get(Calendar.YEAR)) * 12;
-			int addmonths = (today.get(Calendar.MONTH) + 1) - (birth.get(Calendar.MONTH) + 1);
-
-			// Il calcolo precedente potrebbe dare risultato negativo
-			months += addmonths;
-
-			// Verfica che il compleanno non sia gia' passato in questo mese
-			if (today.getTimeInMillis() < birthVer.getTimeInMillis()) {
-				// months--;
-			}
-
-			if (months < 0) {
-				months = 0;
-			}
-			ageResult = months + (longFormat ? " mesi" : "m");
-
-			// se i mesi sono inferiori a due, scrive l'eta' in giorni
-			if (months < 2) {
-
-				long interval = today.getTimeInMillis() - birth.getTimeInMillis();
-				int days = new Long(interval / 86400000L).intValue();
-
-				if (days < 0) {
-					days = 0;
-				}
-				ageResult = days + (longFormat ? " giorni" : "g");
-			}
-		} else {
-			ageResult = age + " anni";
-		}
-
-		return ageResult;
 	}
 
 	
@@ -1366,46 +1029,6 @@ public class Commons {
 	public static Calendar joinDateAndTime(Calendar date, Calendar time) {
 		return dateToCalendar(joinDateAndTime(date.getTime(), time.getTime()));
 	}
-
-	/**
-	 * Converte una stringa esadecimale in array di byte.
-	 * 
-	 * @param hex
-	 *          La stringa esadecimale
-	 * @return L'array di byte
-	 */
-	public static byte[] hexToByteArray(String hex) {
-
-		byte[] byteArray = new byte[hex.length() / 2];
-
-		for (int i = 0; i < hex.length(); i += 2) {
-			byteArray[i / 2] = (byte) Integer.parseInt(hex.substring(i, i + 2), 16);
-		}
-
-		return byteArray;
-	}
-
-	/**
-	 * Converte un array di byte in stringa esadecimale.
-	 * 
-	 * @param byteArray
-	 *          L'array di byte
-	 * @return La stringa esadecimale
-	 */
-	public static String byteArrayToHex(byte[] byteArray) {
-
-		StringBuffer res = new StringBuffer(byteArray.length * 2);
-
-		for (int i = 0; i < byteArray.length; i++) {
-			if ((byteArray[i] & 0xff) < 0x10) {
-				res.append("0");
-			}
-			res.append(Long.toString(byteArray[i] & 0xff, 16).toUpperCase());
-		}
-
-		return res.toString();
-	}
-
 	
 	
 	/**
@@ -1427,67 +1050,6 @@ public class Commons {
 		}
 		
 		return retPhoneNumber;
-	}
-	
-	/**
-	 * Verifica che la tessera sanitaria sia lombarda (000AA000) , in caso contrario ritorna nulla
-	 * viene utilizzata per la notifica siss - ci � stato richiesto di non valorizzare la tessera sui
-	 * messaggi di notifica a meno che non sia ua tessera siss 
-	 * @param ssnNumber
-	 * @return
-	 */
-	public static boolean validateSissSsnNumber(String ssnNumber) {
-		
-		boolean isSissSsnNumber  = false;
-		
-		try{
-			
-			// i primi 3 caratteri devono essere numerici
-			if(StringUtils.isNumeric(ssnNumber.substring(0,1)) && StringUtils.isNumeric(ssnNumber.substring(1,2)) && StringUtils.isNumeric(ssnNumber.substring(2,3))){
-				// il terzo e quarto carattere  devono essere  alfanumerici 
-				if(StringUtils.isAlphanumeric(ssnNumber.substring(3,4)) && StringUtils.isAlphanumeric(ssnNumber.substring(4,5))){
-					// gli ultimi 3 caratteri devono essere numerici
-					if(StringUtils.isNumeric(ssnNumber.substring(5,6)) && StringUtils.isNumeric(ssnNumber.substring(6,7)) && StringUtils.isNumeric(ssnNumber.substring(7,8))){
-						isSissSsnNumber = true;
-					}
-				}
-			}
-		
-		}catch(Exception ex){
-			Logger logger = org.slf4j.LoggerFactory.getLogger("");
-			logger.error("Errore durante la convalida della tessera sanitaria " + ex.getMessage());
-		}
-		
-		return isSissSsnNumber;
-	}
-
-	
-	/**
-	 * AC Fecit 25/07/2014
-	 * 
-	 * Recupera dei dati da una stringa composta nel seguente modo: fieldName=a;b;c;d;|fieldName=e;f;g;|....
-	 * @param values
-	 * @param fieldName
-	 * @return
-	 * @throws IMException
-	 */
-	public static String getValueByFieldName(String values, String fieldName){
-		String fieldValue = "";
-		
-		if(values != null && !values.isEmpty() && fieldName != null && !fieldName.isEmpty()){
-			
-			fieldName = fieldName.toUpperCase();
-			
-			Pattern pattern = Pattern.compile(fieldName+"=([a-zA-Z0-9_.'����������; ]+)"); 
-		    Matcher matcher = pattern.matcher(values);
-		    
-		    if(matcher.find()){
-		    	fieldValue = matcher.group(1);
-		    }
-		    
-		}
-		
-		return fieldValue;
 	}
 
 	/** Applica l'attuale encoding ad una stringa UTF-8*/
@@ -1536,21 +1098,6 @@ public class Commons {
 		return result;
 	}
 
-	public static String htmlEncode(String toEncodeValue) {	
-		try {
-			return URLEncoder.encode(toEncodeValue, CURRENT_ENCODING);
-		} catch (Exception e) {
-			return GlobalConstants.STRING_EMPTY;			
-		}
-	}
-	
-	public static String htmlDecode(String rawValue) {
-		try {
-			return URLDecoder.decode(rawValue, CURRENT_ENCODING);
-		} catch (Exception e) {
-			return GlobalConstants.STRING_EMPTY;
-		}		
-	}	
 	/**
 	 * Ritorna un comparator che compara due stringhe parsate 
 	 * in data con Commons.parseDate()
@@ -1703,216 +1250,6 @@ public class Commons {
 			result = null;
 		}
 		return result;
-	}
-	
-	/**Insieme di intersezione tra due liste di interi */
-	public static IntegerList intersect(IntegerList listA, IntegerList listB){
-		IntegerList result = new IntegerList();
-		if (!listA.isEmpty() && !listB.isEmpty()){
-			
-			//Si assicura che la lista B contenga un maggior numero di valori 
-			//(invertendo le liste, se necessario)
-			if (listA.size()>listB.size()) {
-				switchIntList(listA, listB);
-			}
-			
-			//Estrae i valori in comune tra le due liste
-			for(Integer valA : listA) {
-				if (listB.contains(valA)) {
-					result.add(valA);
-				}	
-			}
-		}
-		return result;
-	}
-	
-	/**Massimo comun divisore tra due interi 
-	 * (Vds. Algoritmo di Euclide) */
-	public static int mcd(int a, int b) {
-		if (b == 0) {
-			return a;  
-		} else {
-			return mcd(b, a % b);
-		}
-	}
-	
-	/**Massimo comun divisore di una lista di interi 
-	 * (Vds. Algoritmo di Euclide) */
-	public static int mcd(Set<Integer> set) {
-		//Validazione input
-		if (set==null || set.isEmpty()) {
-			return 1;
-		}
-		
-		//Converte Set in lista (per semplificare navigazione)
-		List<Integer> list = new ArrayList<Integer>();
-		list.addAll(set);
-		
-		if (list.size()==1) {
-			if (list.get(0)==null) {
-				return 1;
-			} else {
-				return list.get(0).intValue();
-			}
-		}
-		
-		int result = 0;
-		for (Integer i : list) {
-			result = mcd(i, result);
-		}
-		
-		//Condizione di sicurezza (non dovrebbe mai succedere..)
-		if (result==0) {
-			return 1;
-		}
-		return result;
-	}
-	
-	
-	
-	public static void switchIntList(IntegerList listA, IntegerList listB){
-		IntegerList listC = new IntegerList();
-		listC.addAll(listA);
-		listA.removeAllElements();
-		listA.addAll(listB);
-		listB.removeAllElements();
-		listB.addAll(listC);
-		
-	}
-	/**
-	 * Metodo che permette la serializzazione in formato JSON di oggetti complessi
-	 * con attributi dichiarati non di tipo primitivo. (Esempio attributi che rappresentano a loro volta un Object).
-	public static String toJSONString(Object obj) {
-
-		Gson gson = new Gson();
-		String json = gson.toJson(obj);  
-		return json;
-	}*/
-	
-	
-	/** Crea una copia dell'oggetto */
-	public static Object deepCopy(Object inputObj) throws IOException, ClassNotFoundException {
-
-		java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream(100);
-		java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(baos);
-		oos.writeObject(inputObj);
-		byte buf[] = baos.toByteArray();
-		oos.close();
-
-		java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-		java.io.ObjectInputStream ois = new java.io.ObjectInputStream(bais);
-		Object newObj = ois.readObject();
-		ois.close();
-
-		return newObj;
-	}
-	
-	/*@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static String marshalLog(Class classObj, Object obj, QName rootElement) {
-		//il Qname � quello dell'xml type ePrescriptionRequestType
-		String value = null;
-		try {
-			//JAXBContext context = JAXBContext.newInstance(classObj); //senza cache � troppo onerosa
-			JAXBContext context = JaxbUtil.getJaxbContext(classObj);
-			Marshaller m = context.createMarshaller();
-			StringWriter sw = new StringWriter();
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			m.setProperty("com.sun.xml.bind.xmlDeclaration", Boolean.FALSE);
-			m.marshal(new JAXBElement(rootElement, classObj, obj), sw);
-			sw.close();
-			value = sw.toString();
-		} catch (Exception e) {
-			logger.error("Si � verificato un errore", e);
-}
-		return value;
-	}*/
-	
-	/*public static String dumpClass(Object obj) {
-		String result = "";
-		if (obj != null) {
-			try {
-				result = ReflectionToStringBuilder.toString(obj, ReflectionToStringStyle.instance);
-			}catch(Exception e){
-				e.printStackTrace();
-				result = "Exception in Commons.dumpClass(): "+e.getLocalizedMessage();
-			}
-		}
-		return result;
-	}*/
-	
-	/*public static Pair<Date, Date> getFullDayDates(Date in) {
-		Pair<Date, Date> result = new Pair<Date, Date>();
-		result.setFirstElem(getDayStart(in != null ? in : new Date()));
-		result.setSecondElem(getDayEnd(in != null ? in : new Date()));
-		return result;
-	}
-	
-	public static Pair<Calendar, Calendar> getFullDayCalendars(Calendar in) {
-		Pair<Calendar, Calendar> result = new Pair<Calendar, Calendar>();
-		result.setFirstElem(dayStart(in != null ? in : Calendar.getInstance()));
-		result.setSecondElem(dayEnd(in != null ? in : Calendar.getInstance()));
-		return result;
-	}*/
-
-	/**
-	 * calcola la data di inizio e fine in base al mese e l'anno passato
-	 * se la data di inizio calcolata � minore della data odierna viene resituito oggi come data inizio
-	 *
-	 * TODO aggiungere controllo su date passate?
-	 * 
-	 * @param month 
-	 * @param year
-	 * @return coppia: il primo elemento la data inizio, la seconda la data fine
-	 * @throws ParseException
-	 
-	public static Pair<Calendar,Calendar> calculateStartEndDate(Integer month, Integer year) throws ParseException{
-		String meseString = null;
-		int monthDays = 0;
-		String dateStartString = null;
-		String dateEndString = null;
-		Calendar startDate = Calendar.getInstance();
-		if (month.intValue() < 10) {
-			meseString = "0" + month;
-		} else {
-			meseString = "" + month;
-		}
-		// Calcola la data iniziale in formato stringa
-		 dateStartString = "01/" + meseString + "/" + year;
-		// Calcola la data finale in formato stringa
-		startDate.setTime(Commons.parseSimpleDate(dateStartString));
-		monthDays = startDate.getActualMaximum(Calendar.DAY_OF_MONTH);
-		dateEndString = monthDays + "/" + meseString + "/" + year;
-		Calendar endDate = Calendar.getInstance();
-		endDate.setTime(Commons.parseSimpleDate(dateEndString));
-		Calendar today = Commons.dayStart(GregorianCalendar.getInstance());
-		if (startDate.before(today)) {
-			startDate = today;
-		}
-		return new Pair<Calendar, Calendar>(startDate, endDate);
-	}*/
-	
-	/**
-	 * converte il calendar passato in una data in formato ISO 8601
-	 * @param date
-	 * @return
-	 */
-	public static String formatCalendarToISO_8601Date(Calendar date){
-		//TimeZone tz = TimeZone.getTimeZone("UTC");
-		//DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault());
-		//df.setTimeZone(tz);
-		return df.format(date.getTime());
-	}
-	
-	/**
-	 * 2016-10-17T06:00:00.000Z
-	 * @param date
-	 * @return
-	 * @throws ParseException 
-	 */
-	public static Date parseISO_8601Date(String date) throws ParseException{
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
-		return df.parse(date);
 	}
 
 	/** Restituisce la data minima tra quelle passate in input */
@@ -2099,76 +1436,6 @@ public class Commons {
 			                  cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
 		}
 	}
-		
-
-	/**
-	 * {@linkplain #intervalsOverlap(Calendar, Calendar, Calendar, Calendar, boolean)}
-	 * @param i1Start
-	 * @param i1End
-	 * @param i2Start
-	 * @param i2End
-	 * @return
-	 * @throws ParseException
-	 */
-	public static boolean intervalsOverlap(Calendar i1Start, Calendar i1End, Calendar i2Start, Calendar i2End) throws ParseException {
-		return intervalsOverlap(i1Start, i1End, i2Start, i2End, true);
-	}
-
-	/** Converte una stringa in hash numerico */
-	public static long toHash(long baseHash, String value) {
-		if (StringUtils.isEmpty(value)) {
-			return 0;
-		}
-		
-		long hash = baseHash;		
-		for (int i = 0; i < value.length(); i++) {
-		    hash = hash*31 + value.charAt(i);
-		}
-		return hash;
-	}
-	
-	/** Converte una stringa in hash numerico */
-	public static long toHash(long baseHash,StringList values) {
-		long hash = 0;
-		
-		if (values!=null) {
-			for (String value : values) {
-				hash += toHash(baseHash,value);
-			}
-		}
-
-		return hash;
-	}
-	
-	/** Converte una data in hash numerico */
-	public static long toHash(long baseHash,Integer value) {
-		long hash = 0;
-		if (value==null) {
-			return hash;
-		}		
-		hash += toHash(baseHash,String.valueOf(value));
-		return hash;
-	}
-	
-	/** Converte una data in hash numerico */
-	public static long toHash(long baseHash,Date value) {
-		long hash = 0;
-		if (value==null) {
-			return hash;
-		}		
-		hash += toHash(baseHash,formatDateTime(value));
-		return hash;
-	}
-	
-	/** Converte una data in hash numerico */
-	public static long toHash(long baseHash,Calendar value) {
-		long hash = 0;
-		if (value==null) {
-			return hash;
-		}		
-		hash += toHash(baseHash,formatDateTime(value.getTime()));
-		return hash;
-	}
 	
 	/** Converte una stringa in oggetto Integer gestendo valori null */
 	public static Integer toInteger(String value) {
@@ -2203,104 +1470,6 @@ public class Commons {
 			return secondChoice;
 		}
 	}
-
-
-	/**
-	 * {@linkplain #intervalsOverlap(Date, Date, Date, Date, boolean)}
-	 * @param i1Start
-	 * @param i1End
-	 * @param i2Start
-	 * @param i2End
-	 * @param handleNullsAsToday
-	 * @return
-	 * @throws ParseException
-	 */
-	public static boolean intervalsOverlap(Calendar i1Start, Calendar i1End, Calendar i2Start, Calendar i2End, boolean handleNullsAsToday) throws ParseException {
-		return intervalsOverlap(i1Start.getTime(), i1End.getTime(), i2Start.getTime(), i2End.getTime(), handleNullsAsToday);
-	}
-
-	
-	/**
-	 * Restituisce true se i due intervalli di Date passati in input si sovrappongono<br>
-	 *  
-	 * @param i1Start data inizio primo intervallo  
-	 * @param i1End data fine primo intervallo
-	 * @param i2Start data inizio secondo intervallo
-	 * @param i2End data fine secondo intervallo
-	 * @param handleNulls	se true indica di trattare il limite di data come il pi� piccolo o il pi� grande possibile
-	 * @return
-	 * @throws ParseException 
-	 */
-	public static boolean intervalsOverlap(Date i1Start, Date i1End, Date i2Start, Date i2End, boolean handleNulls) throws ParseException {
-		
-		if ((i1Start==null && i1End==null) || (i2Start==null && i2End==null)) {
-			return false;
-		}
-		
-		if (handleNulls) {
-			if (i1Start==null) {
-				i1Start = parseDate(SYS_DATAMIN);
-			} 
-			if (i1End==null) {
-				i1End = parseDate(SYS_DATAMAX);
-			}
-			if (i2Start==null) {
-				i2Start = parseDate(SYS_DATAMIN);
-			}
-			if (i2End==null) {
-				i2End = parseDate(SYS_DATAMAX);
-			}
-		}
-		
-		return ( i1Start.compareTo(i2End) <= 0  && i1End.compareTo(i2Start) >= 0 ); 
-	}
-	
-	
-
-	/**
-	 * {@linkplain #timeIntervalsOverlap(Calendar, Calendar, Calendar, Calendar, boolean)}
-	 * @param i1Start
-	 * @param i1End
-	 * @param i2Start
-	 * @param i2End
-	 * @return
-	 * @throws ParseException
-	 */
-	public static boolean timeIntervalsOverlap(Calendar i1Start, Calendar i1End, Calendar i2Start, Calendar i2End) throws ParseException {
-		return timeIntervalsOverlap(i1Start, i1End, i2Start, i2End, true);
-	}
-
-	/**
-	 * {@linkplain #timeIntervalsOverlap(Date, Date, Date, Date, boolean)}
-	 * @param i1Start
-	 * @param i1End
-	 * @param i2Start
-	 * @param i2End
-	 * @param handleNulls
-	 * @return
-	 * @throws ParseException
-	 */
-	public static boolean timeIntervalsOverlap(Calendar i1Start, Calendar i1End, Calendar i2Start, Calendar i2End, boolean handleNulls) throws ParseException {
-		return timeIntervalsOverlap(i1Start.getTime(), i1End.getTime(), i2Start.getTime(), i2End.getTime(), true);
-	}	
-
-	/**
-	 * Controlla la sovrapposizione di due fascie orare dello stesso giorno<br>
-	 * NB: Per sicurezza alle date viene troncata la parte relativa a giorno, mese ed anno<br> 
-	 *   
-	 * @param i1Start data inizio primo intervallo  
-	 * @param i1End data fine primo intervallo
-	 * @param i2Start data inizio secondo intervallo
-	 * @param i2End data fine secondo intervallo
-	 * @param handleNulls	se true indica di trattare il limite di data come il pi� piccolo o il pi� grande possibile
-	 * @return
-	 * @throws ParseException
-	 */
-	public static boolean timeIntervalsOverlap(Date i1Start, Date i1End, Date i2Start, Date i2End, boolean handleNulls) throws ParseException {
-		return intervalsOverlap(getResettedDate(i1Start), getResettedDate(i1End), getResettedDate(i2Start), getResettedDate(i2End), handleNulls);
-	}	
-	
-
 	
 	/**
 	 * Restituisce true se le due liste si intersecano, ovvero se ci sono date in comune<br><br>
@@ -2488,34 +1657,6 @@ public class Commons {
 		return result;
 	}
 	
-	/**Converte una weekDayMask in una lista di giorni della settimana
-	 * 1=lun, 2=mart, 3=merc, 4=giov, 5=ven, 6=sab, 7=dom
-	 * 
-	 * 
-	 * @param weekDayMask
-	 * @return
-	 */
-	public static Set<Integer> getWeekDaysForUpdate(String weekDayMask) {
-		Set<Integer> result = new HashSet<>();
-		final String emptyMap = "0000000";
-		
-		if (weekDayMask==null) {
-			return result;
-		}
-		if (weekDayMask.equals(emptyMap)) {
-			return result;
-		}
-		
-		//La mask prevede che il primo giorno sia il luned�; pertanto la posizione nella stringa corrisponde al giorno 
-		for (int i = 0; i < weekDayMask.length(); i++) {
-			if (weekDayMask.substring(i, (i + 1)).equals("1")) {
-				result.add(i+1);
-			}
-		}
-		
-		return result;
-	}
-	
 	/**Restituisce il giorno della settimana nel formato di riferimento 1=luned�, 7=domenica
 	 * 
 	 * @param rifDate
@@ -2523,59 +1664,6 @@ public class Commons {
 	 */
 	public static Integer getWeekDay(Date rifDate) {
 		return getWeekDay(dateToCalendar(rifDate));
-	}
-	
-	/**Verifica appartenenza di una data ad una weekday mask
-	 * true=la data � compresa nella mask
-	 * 
-	 * @param rifDate
-	 * @param weekDayMask
-	 * @return
-	 */
-	public static boolean checkWeekDayMask(Date rifDate,String weekDayMask) {
-		return checkWeekDayMask(getWeekDay(rifDate),getWeekDays(weekDayMask));
-	}
-	
-	/**Verifica appartenenza di una data (formato 1=lun, 7=dom) ad una weekday mask
-	 * true=la data � compresa nella mask
-	 * 
-	 * @param rifDate
-	 * @param weekDayMask
-	 * @return
-	 */
-	public static boolean checkWeekDayMask(int weekDay,String weekDayMask) {
-		return checkWeekDayMask(weekDay,getWeekDays(weekDayMask));
-	}
-	
-	/**Verifica appartenenza di una data ad una weekday mask (convertita in set)
-	 * true=la data � compresa nella mask
-	 * 
-	 * @param rifDate
-	 * @param weekDayMask
-	 * @return
-	 */
-	public static boolean checkWeekDayMask(Date rifDate,Set<Integer> weekDays) {
-		return checkWeekDayMask(getWeekDay(rifDate), weekDays);
-	}
-	
-	/**Verifica appartenenza di una data (formato 1=lun, 7=dom) ad una weekday mask (convertita in set)
-	 * true=la data � compresa nella mask
-	 * 
-	 * @param rifDate
-	 * @param weekDayMask
-	 * @return
-	 */
-	public static boolean checkWeekDayMask(int weekDay,Set<Integer> weekDays) {
-		if (weekDay<=0 || weekDay>7) {
-			return false; //fuori range
-		}
-		if (weekDays==null || weekDays.isEmpty()) {
-			return true; //inteso come "nessun filtro", cio� tutto
-		}
-		if (weekDays.contains(weekDay)) {
-			return true;
-		}
-		return false;
 	}
 	
 	/**Restituisce il giorno della settimana nel formato di riferimento 1=luned�, 7=domenica
@@ -2610,103 +1698,6 @@ public class Commons {
 	public static int roundUp(int num, int divisor) {
 	    int sign = (num > 0 ? 1 : -1) * (divisor > 0 ? 1 : -1);
 	    return sign * (abs(num) + abs(divisor) - 1) / abs(divisor);
-	}
-
-
-	/** Converte weekDayMask formato IE-OPERA in weekDayBitMask 
-	 * 
- 	* @param weekDayBitMask: Bitmask per indicare in quali giorni della settimana.
-	 * Luned� = 1
-	 * Marted� = 2 
-	 * Mercoled� = 4
-	 * Gioved� = 8
-	 * Venerd� = 16
-	 * Sabato = 32
-	 * Domenica = 64
-	 * 
-	 * @return Stringa di 7 caratteri, dove 1� rappresenta LUNEDI e 7� la DOMENICA
-	 */
-	public static String toWeekDayMask(Integer weekDayBitMask) {
-		if (weekDayBitMask==null || weekDayBitMask<=0) {
-			return "1111111";
-		}
-		StringBuilder result = new StringBuilder();
-		result.append(((weekDayBitMask.intValue()&1)/1));
-		result.append(((weekDayBitMask.intValue()&2)/2));
-		result.append(((weekDayBitMask.intValue()&4)/4));
-		result.append(((weekDayBitMask.intValue()&8)/8));
-		result.append(((weekDayBitMask.intValue()&16)/16));
-		result.append(((weekDayBitMask.intValue()&32)/32));
-		result.append(((weekDayBitMask.intValue()&64)/64));
-		return result.toString();
-		
-		//ALTERNATIVA (BUGGATA) presa da rest services
-		//sbaglia di un giorno (converte luned� su marterd�, etc..)	
-		// inserisco il pad degli zero a sinistra
-		//String leftPad = StringUtils.leftPad(Integer.toBinaryString(weekDayBitMask), 7, '0');
-		// rovescio la stringa dei valori
-		//String weekDays = new StringBuilder(leftPad).reverse().toString();
-		// faccio partire la settimana da domenica
-		//return weekDays.substring(weekDays.length() - 1) + weekDays.substring(0, weekDays.length() - 1);
-	}
-	
-	/**Converte weekDayBitMask in weekDayMask formato IE-OPERA
-	 * 
-	 * @param weekDayMask:  Stringa di 7 caratteri, dove 1� rappresenta LUNEDI e 7� la DOMENICA
-	 * 
-	 * @return Bitmask per indicare in quali giorni della settimana.
-	 * Luned� = 1
-	 * Marted� = 2 
-	 * Mercoled� = 4
-	 * Gioved� = 8
-	 * Venerd� = 16
-	 * Sabato = 32
-	 * Domenica = 64
-	 */
-	public static Integer toWeekDayBitMask(String weekDayMask) {
-		if (StringUtils.isBlank(weekDayMask) || weekDayMask.length()!=7) {
-			weekDayMask = "1111111";
-		}
-		int result = 0;
-		//Luned�
-		if (weekDayMask.substring(0, 1).equals("1")) {
-			result += 1;
-		}
-		//Marted�
-		if (weekDayMask.substring(1, 2).equals("1")) {
-			result += 2;
-		}
-		//Mercoled�
-		if (weekDayMask.substring(2, 3).equals("1")) {
-			result += 4;
-		}
-		//Gioved�
-		if (weekDayMask.substring(3, 4).equals("1")) {
-			result += 8;
-		}
-		//Venerd�
-		if (weekDayMask.substring(4, 5).equals("1")) {
-			result += 16;
-		}
-		//Sabato
-		if (weekDayMask.substring(5, 6).equals("1")) {
-			result += 32;
-		}
-		//Domenica
-		if (weekDayMask.substring(6, 7).equals("1")) {
-			result += 64;
-		}
-		
-		return result;
-		
-//		//SOLUZIONE BUGGATA: CONVERTE IL MARTEDI' ('0100000') in 1 (luned�, '10000000')
-//		String binary = new StringBuilder(weekDayMask).reverse().toString();
-//		try{
-//			return Integer.parseInt(binary, 2);
-//		} catch (NumberFormatException ex){
-//			return 0;
-//		}
-		
 	}
 	
 	/**Confonto tra due stringhe*/
@@ -2833,20 +1824,6 @@ public class Commons {
 	 */
 	public static Calendar resetTime(Calendar in) {
 		return dayStart(in);
-	}
-	
-	
-	/**Use getStartDate() */
-	@Deprecated
-	public static Date resetTime(Date in) {
-		return getDayStart(in);
-	}
-
-
-	/**Use getStartDate() */
-	@Deprecated
-	public static Date dayStart(Date in) {
-		return getDayStart(in);
 	}
 
 	
@@ -3022,60 +1999,11 @@ public class Commons {
 		cal.set(Calendar.DAY_OF_MONTH, 1);
 		return addDay(cal.getTime(), -1);
 	}
-
-	/**
-	 * Trasforma il nome di una property in un nome di environment variable.
-	 * In sostanza rimuove i caratteri "-", sostiuisci i caratteri "." con "_"
-	 * e trasforma tutto in uppercase.
-	 * @param propertyName
-	 * @return
-	 */
-	public static String propertyNameToEnvName(String propertyName){
-		return propertyName.replace("-", "")
-				.replace(".", "_")
-				.toUpperCase();
-	}
-
-	public static String getPropertyFromSystemOrEnv(String propertyName){
-		// Recupera dalle system properties
-		String output = System.getProperty(propertyName);
-		if (StringUtils.isEmpty(output)) {
-			//Se non � presente la system variable proviamo con l'environment variable
-			String appHomeENV = Commons.propertyNameToEnvName(propertyName);
-			output = System.getenv(appHomeENV);
-		}
-		return output;
-	}
 	
 	public static boolean toBoolean(String s) {
 		return s!=null && ArrayUtils.contains(TRUE_VALUES, StringUtils.upperCase(s));
 	}
 	
-	/**Converte oggetto Clob in stringa*/
-	public static String clobToString(Clob data) {
-		
-		if (data == null) {
-		      return null;
-		}
-
-        StringBuffer result = new StringBuffer();
-
-	    try {
-	        BufferedReader bufferRead = new BufferedReader(data.getCharacterStream());
-	      
-	        String strng;
-
-	        while ((strng=bufferRead.readLine())!=null) {
-	        	result.append(strng);
-	        }
-	      
-	    } catch (SQLException e) {
-	        // handle this exception
-	    } catch (IOException e) {
-	        // handle this exception
-	    }
-	    return result.toString();
-	}
 	
 	public static Integer toIntegerSafe(String value) {
 		if(StringUtils.isBlank(value)) {
@@ -3089,62 +2017,6 @@ public class Commons {
 		}
 	}
 	
-	/**
-	 * Restituisce il nome esteso del giorno di una settimana a partire dal suo valore Integer (riferirsi a {@link DayOfWeek})
-	 * @param dayOfWeek
-	 * @return il giorno della settimana in formato stringa localizzato, se il parametro � un {@link DayOfWeek}, null altrimenti
-	 
-	public static String toDayOfWeekString(Integer dayOfWeek) {
-		if(dayOfWeek==null || dayOfWeek<DayOfWeek.MONDAY.ordinal() || dayOfWeek>DayOfWeek.SUNDAY.ordinal()) {
-			return null;
-		}
-		String localeString = PropertiesResourceBundle.getInstance().getCurrentLocale();
-		if(StringUtils.isEmpty(localeString)) {
-			// fallback
-			localeString = Locale.ITALY.toString();
-		}
-		return DayOfWeek.of(dayOfWeek).getDisplayName(TextStyle.FULL,new Locale(localeString.substring(0,2)));
-	}*/
-	
-	/*public static byte[] exportToPDF(JasperPrint report) throws JRException {
-		Validate.notNull(report, "Parametro obbligatorio mancante: report.");
-		List<JasperPrint> prints = Arrays.asList(report);
-		
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		JRPdfExporter pdfExporter = new JRPdfExporter();
-		pdfExporter.setExporterInput(SimpleExporterInput.getInstance(prints));
-		pdfExporter.setExporterOutput(new SimpleOutputStreamExporterOutput(outputStream));
-		pdfExporter.exportReport();
-		return outputStream.toByteArray();
-	}
-	
-	public static byte[] exportToXLS(JasperPrint report, SimpleXlsReportConfiguration configuration) throws JRException {
-		Validate.notNull(report, "Parametro obbligatorio mancante: report.");
-		List<JasperPrint> prints = Arrays.asList(report);
-		
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		JRXlsExporter xlsExporter = new JRXlsExporter();
-		xlsExporter.setExporterInput(SimpleExporterInput.getInstance(prints));
-		xlsExporter.setExporterOutput(new SimpleOutputStreamExporterOutput(outputStream));
-		
-		if(configuration==null) {
-			configuration = new SimpleXlsReportConfiguration();
-			configuration.setRemoveEmptySpaceBetweenRows(Boolean.TRUE);
-			configuration.setWhitePageBackground(Boolean.FALSE);
-		}
-		xlsExporter.setConfiguration(configuration);
-		xlsExporter.exportReport();
-		return outputStream.toByteArray();
-	}
-	
-	public static boolean isHourInInterval(Calendar target, Calendar start, Calendar end) {
-		String targetHour = Commons.format(target, Commons.FORMAT_SIMPLE_TIME);
-		String startHour = Commons.format(start, Commons.FORMAT_SIMPLE_TIME);
-		String endHour = Commons.format(end, Commons.FORMAT_SIMPLE_TIME);
-		
-        return ((targetHour.compareTo(startHour) >= 0)
-                && (targetHour.compareTo(endHour) <= 0));
-    }*/
 	
 	/**
 	 * Converte un Calendar in una LocalDate.

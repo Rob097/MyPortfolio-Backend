@@ -478,27 +478,5 @@ public class StringList extends Vector<String> {
 	public synchronized boolean isNotEmpty() {
 		return !this.isEmpty();
 	}
-	
-	/**Converte in stringa con separatore
-	 * @param sep 
-	 * @return */
-	public String toDSV(String sep) {
-		if (sep==null) {
-			sep = "";
-		}
-		String curSep = "";
-		StringBuilder ret = new StringBuilder(2048);
-		for (String val : this) {
-			if (val==null) {
-				continue;
-			}
-			if (val.length()==0) {
-				continue;
-			}
-			ret.append(curSep).append(val);
-			curSep = sep;
-		}
-		return ret.toString();
-	}
 }
 

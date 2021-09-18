@@ -122,18 +122,6 @@ public class SqlConnection {
 		  TransactionSynchronizationManager.bindResource(getTransactionManager().getDataSource(), new ConnectionHolder(cnn));
 		  
 		  transactionStatus = getTransactionManager().getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW));
-	//
-//	    if (!boolTransactionPending) {
-	//
-//	      // imposta l'indicatore di transazione attiva
-//	      boolTransactionPending = true;
-	//
-//	      // avvisa JDBC di non fare autocommit
-//	      cnn.setAutoCommit(false);
-//	      
-//	    } else {
-//	      
-//	    }
 	  }
 	  
 	  /**
@@ -158,21 +146,6 @@ public class SqlConnection {
 		  }
 		  
 		  transactionStatus = null;
-//		  
-	//
-//	    // se non c'è una transazione in corso alza un'eccezione
-//	    if (!boolTransactionPending) {
-//	      throw new SessionObjectException("Non esiste nessuna transazione aperta, impossibile proseguire.");
-//	    }
-	//
-//	    // altrimenti azzera l'indicatore di transazione...
-//	    boolTransactionPending = false;
-	//
-//	    // ...esegue la commit sulla connessione al DB...
-//	    cnn.commit();
-	//
-//	    // ...e riattiva la commit automatica
-//	    cnn.setAutoCommit(true);
 	  }
 
 	  /**
@@ -198,19 +171,6 @@ public class SqlConnection {
 		  }
 		  
 		  transactionStatus = null;
-
-//	    //Se c'è una transazione pendente fa rollback..
-//	  	//Se non ci fosse, non è un errore (caso di rollback fatto in catch, con eccezione lanciata prima dell'openConnection)
-//	    if (boolTransactionPending) {
-//	      // altrimenti azzera l'indicatore di transazione...
-//	      boolTransactionPending = false;
-	//
-//	      // ...esegue la rollback sulla connessione al DB...
-//	      cnn.rollback();
-//	    }
-	//    
-//	    // ...e riattiva la commit automatica
-//	    cnn.setAutoCommit(true);
 	  }
 	  
 	  /**
@@ -379,58 +339,6 @@ public class SqlConnection {
 
 	    return prepStmt;
 	  }
-	  
-	  /**
-	   * Metodo per il prepareStatement
-	   * 
-	   * @param sql
-	   *          Stringa SQL
-	   * @param resultSetType
-	   *          Tipo ResultSet
-	   * @param resultSetConcurrency
-	   *          Tipo concurrency
-	   * @return PreparedStatement
-	   * @throws SQLException
-	   */
-	  public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-
-	    PreparedStatement prepStmt = cnn.prepareStatement(sql, resultSetType, resultSetConcurrency);
-	    preparedStmtPool.addElement(prepStmt);
-
-	    return prepStmt;
-	  }
-
-	  /**
-	   * Metodo per la creazione di Statement
-	   * 
-	   * @return Statement
-	   * @throws SQLException
-	   */
-	  public Statement createStatement() throws SQLException {
-
-	    Statement stmt = cnn.createStatement();
-	    statementPool.addElement(stmt);
-
-	    return stmt;
-	  }
-
-	  /**
-	   * Metodo per la creazione di Statement
-	   * 
-	   * @param resultSetType
-	   *          Tipo ResultSet
-	   * @param resultSetConcurrency
-	   *          Tipo concurrency
-	   * @return Statement
-	   * @throws SQLException
-	   */
-	  public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
-
-	    Statement stmt = cnn.createStatement(resultSetType, resultSetConcurrency);
-	    statementPool.addElement(stmt);
-
-	    return stmt;
-	  }
 
 	  /**
 	   * Prepara uno statement che può essere utilizzato per chiamare una stored procedure.
@@ -444,28 +352,6 @@ public class SqlConnection {
 	  public CallableStatement prepareCall(String sql) throws SQLException {
 
 	    CallableStatement stmt = cnn.prepareCall(sql);
-	    statementPool.addElement(stmt);
-
-	    return stmt;
-	  }
-
-	  /**
-	   * Prepara uno statement che può essere utilizzato per chiamare una stored procedure dalla quale viene restituito un
-	   * ResultSet.
-	   * 
-	   * @param sql
-	   *          il sorgente della chiamata da effettuare.
-	   * @param resultSetType
-	   *          il tipo di ResultSet desiderato.
-	   * @param resultSetConcurrency
-	   *          il tipo di concorrenza da applicare.
-	   * @return un CallableStatement che contiene la chiamata SQL precompilata.
-	   * @throws SQLException
-	   *           in caso di errore di accesso al database.
-	   */
-	  public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-
-	    CallableStatement stmt = cnn.prepareCall(sql, resultSetType, resultSetConcurrency);
 	    statementPool.addElement(stmt);
 
 	    return stmt;
@@ -484,7 +370,6 @@ public class SqlConnection {
 		 * <hr>
 		 * <BR><BR>
 		 * 
-		 * @author AnzE
 		 * @param resultSets uno o più resultset
 		 */
 		protected final void closeResultSets(ResultSet...resultSets){
@@ -525,7 +410,6 @@ public class SqlConnection {
 		 * <hr>
 		 * <BR><BR>
 		 * 
-		 * @author AnzE
 		 * @param statements	uno o più statement
 		 */
 		protected final void closeStatements(Statement...statements){

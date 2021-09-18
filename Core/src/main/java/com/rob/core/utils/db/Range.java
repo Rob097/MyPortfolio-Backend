@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
  * Classe per configurare un range di risultati.<br>
  * Il range va considerato 0 based,
  * perciò start=0 e end=9 significa richiedere i primi 10 elementi
- * @author u08446
  *
  */
 public class Range implements Serializable{

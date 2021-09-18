@@ -5,6 +5,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
+
+/**
+ * @author Roberto97
+ * Class used to trace how long a query takes to be executed
+ */
 public class ElapsedMeter {
 	long startMills;
 	long partialMills;

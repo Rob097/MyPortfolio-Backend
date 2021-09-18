@@ -1,9 +1,7 @@
 package com.rob.core.utils.java;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Clob;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -14,6 +12,11 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
+
+/**
+ * @author Roberto97
+ * Class extended by all the BE models (not DTO).
+ */
 public class ValueObject {
 	private transient SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -25,8 +28,6 @@ public class ValueObject {
 	public static final String DATETIME_FORMAT = "dd/MM/yyyy";
 
 	
-	/**Lista di privilegi che l'utente connesso possiede per l'entità
-	private Set<Privilege> userPrivileges;*/
 	
 	/**
    * Formatta un oggetto Calendar in Stringa "dd/MM/yyyy HH:mm:ss".
@@ -210,47 +211,5 @@ public class ValueObject {
 		}
 		return ret;
 	}
-	
-	/**
-	 * Metodo che permette la serializzazione in formato JSON di oggetti complessi
-	 * con attributi dichiarati non di tipo primitivo. (Esempio attributi che rappresentano a loro volta un Object).
-	
-	public String toJSONString() {
-		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-		
-		return gson.toJson(this);
-	}*/
-	
-	/** Esegue una copia completa dell'oggetto 
-	 * @return 
-	 * @throws IOException 
-	 * @throws ClassNotFoundException */
-	public ValueObject deepCopy() throws IOException, ClassNotFoundException {
-		return (ValueObject) Commons.deepCopy(this);
-	}
-	
-	
-	@Override
-	public Object clone() throws CloneNotSupportedException {
-		try {
-			return deepCopy();
-		} catch (Exception e) {
-			throw new CloneNotSupportedException(e.getMessage());
-		}
-		 
-		 //return super.clone();
-	}
 
-	/**Converte oggetto Clob in stringa*/
-	protected static String clobToString(Clob data) {
-		return Commons.clobToString(data);
-	}
-	
-	/*public Set<Privilege> getUserPrivileges() {
-		return userPrivileges;
-	}
-
-	public void setUserPrivileges(Set<Privilege> userPrivileges) {
-		this.userPrivileges = userPrivileges;
-	}*/
 }

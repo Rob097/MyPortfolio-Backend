@@ -17,12 +17,10 @@ import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import com.rob.core.utils.db.PreparedStatementBuilder;
 import com.rob.core.utils.db.QueryFactory;
-import com.rob.core.utils.db.RandomGUID;
 import com.rob.core.utils.db.SqlConnection;
 import com.rob.core.utils.db.SqlDataSource;
 
@@ -44,12 +42,6 @@ public abstract class SessionObject {
 
 	/** Vale true se l'oggetto è stato inizializzato in contesto master */
 	protected boolean master;
-
-	/** Identificativo dell'oggetto  */
-	private String objectKey;
-	
-	/** Informazioni aggiuntive sulla classe, usate per annotare informazioni */
-	private String additionalInfo = "";
 	
 	/**Cache per ridurre accessi a database; la cache è definita per ogni oggetto, ma può essere condivisa sul costruttore tra più oggetti della stessa request
 	 * 	1° chiave: className della classe salvata nella mappa
@@ -64,7 +56,6 @@ public abstract class SessionObject {
 			if (SqlDataSource.getInstance().getPool() != null) {
 				connectionPool = SqlDataSource.getInstance().getPool();
 				master = true;
-				setObjectKey(new RandomGUID().toString());
 			}else if (SqlDataSource.getInstance().getTestConnection() != null) {
 				extConnection = SqlDataSource.getInstance().getTestConnection();
 				master = false;
@@ -93,26 +84,6 @@ public abstract class SessionObject {
 	 */
 	public SessionObject(SqlConnection con) {
 		init(con);
-	}
-	
-
-	public String getObjectKey() {
-		return objectKey;
-	}
-
-	public void setObjectKey(String objectKey) {
-		if (StringUtils.isNotEmpty(objectKey)) {
-			this.objectKey = objectKey;
-		}
-	}
-
-	public String getAdditionalInfo() {
-		 if (StringUtils.isEmpty(additionalInfo))
-			 return "";
-		return "<ai>" + additionalInfo + "</ai>";
-	}
-	public void addAdditionalInfo(String element, String info ) {
-		this.additionalInfo = this.additionalInfo + "<" + element + ">" + info + "</" + element + ">";
 	}
 	
 	/**
@@ -221,7 +192,6 @@ public abstract class SessionObject {
 	 * <hr>
 	 * <BR><BR>
 	 * 
-	 * @author AnzE
 	 * @param resultSets uno o più resultset
 	 */
 	public final static void closeResultSets(ResultSet...resultSets){
@@ -262,7 +232,6 @@ public abstract class SessionObject {
 	 * <hr>
 	 * <BR><BR>
 	 * 
-	 * @author AnzE
 	 * @param statements	uno o più statement
 	 */
 	public final static void closeStatements(Statement...statements){
@@ -303,55 +272,6 @@ public abstract class SessionObject {
 			}
 
 		super.finalize();
-	}
-
-	/**
-	 * Inizia una transazione sul database se l'oggetto è stato istanziato in contesto master.
-	 * 
-	 * @param con
-	 *          La connessione da utilizzare
-	 * @return La connessione ricevuta
-	 * @throws SQLException
-	 */
-	protected final SqlConnection beginTrans(SqlConnection con) throws SQLException {
-		if (isMaster() && con!=null) {
-			con.beginTrans();
-		}
-		return con;
-	}
-	
-	protected final SqlConnection beginTrans2(SqlConnection con) throws SQLException {
-		return beginTrans(con);
-	}
-
-	/**
-	 * Conferma una transazione sul database se l'oggetto è stato istanziato in contesto master.
-	 * 
-	 * @param con
-	 *          La connessione da utilizzare
-	 * @return La connessione ricevuta
-	 * @throws SQLException
-	 */
-	protected final SqlConnection commitTrans(SqlConnection con) throws SQLException {
-		if (isMaster() && con!=null) {
-			con.commitTrans();
-		}
-		return con;
-	}
-
-	/**
-	 * Annulla una transazione sul database se l'oggetto è stato istanziato in contesto master.
-	 * 
-	 * @param con
-	 *          La connessione da utilizzare
-	 * @return La connessione ricevuta
-	 * @throws SQLException
-	 */
-	protected final SqlConnection rollBackTrans(SqlConnection con) throws SQLException {
-		if (isMaster() && con!=null) {
-			con.rollBackTrans();
-		}
-		return con;
 	}
 
 	/**
@@ -400,41 +320,12 @@ public abstract class SessionObject {
 		setBindVariable(statement, false, index, value, false);
 	}
 	
-	//Le variabili data non sono correttamente gestite in questa soluzione
-	//utilizzare PreparedStatementBuilder
-	@Deprecated
-	public final static void setBindVariable(PreparedStatement statement, int index, Calendar value) throws SQLException {
-		setBindVariable(statement, false, index, value, false);
-	}
-	
-	/** Metodo di appoggio utilizzato per tracciare l'attivita' di revisione
-	 * (vi associo query che non utilizzano le date come filtri)
-	 * Verrà rimosso al termine
-	 * @param statement 
-	 * @param index 
-	 * @param value 
-	 * @throws SQLException */
 	public final static void setBindVariableOK(PreparedStatement statement, int index, Calendar value) throws SQLException {
 		setBindVariable(statement, false, index, value, false);
 	}
-	
-	//Le variabili data non sono correttamente gestite in questa soluzione
-	//utilizzare PreparedStatementBuilder
-	/*@Deprecated
-	public final static void setBindVariable(PreparedStatement statement, int index, Date value) throws SQLException {
-		setBindVariable(statement, false, index, value, false);
-	}*/
-	
-	/** Metodo di appoggio utilizzato per tracciare l'attivita' di revisione 
-	 * (vi associo query che non utilizzano le date come filtri)
-	 * Verrà rimosso al termine
-	 * @param statement 
-	 * @param index 
-	 * @param value 
-	 * @throws SQLException */
 	public final static void setBindVariableOK(PreparedStatement statement, int index, Date value) throws SQLException {
 		setBindVariable(statement, false, index, value, false);
-	}
+	}	
 	
 	public final static void setBindVariable(PreparedStatement statement, int index, Double value) throws SQLException {
 		setBindVariable(statement, false, index, value, false);
