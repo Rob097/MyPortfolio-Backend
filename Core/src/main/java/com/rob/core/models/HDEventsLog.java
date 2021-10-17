@@ -190,8 +190,8 @@ public class HDEventsLog extends ValueObject implements WithID<String> {
 	public void setUser(User user) {
 		this.user = user;
 	}
-	public void setUserId(String userId) {
-		this.user = User.byId(Integer.parseInt(userId));
+	public void setUserId(Integer userId) {
+		this.user = User.byId(userId);
 	}
 	
 

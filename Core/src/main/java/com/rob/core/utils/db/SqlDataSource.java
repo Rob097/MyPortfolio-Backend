@@ -10,17 +10,23 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+import com.rob.core.models.enums.PropertiesEnum;
 import com.rob.core.utils.Properties;
 
+
+
+@Configuration
 public class SqlDataSource {
 
 	private static final SqlDataSource instance = new SqlDataSource();
 	private DataSource connectionPool;
-	private static Properties properties;
+	//private static Properties properties;
 	private SqlConnection testConnection;
 
-	private SqlDataSource() {
+	public SqlDataSource() {
 	}
 
 	public static SqlDataSource getInstance() {
@@ -83,25 +89,31 @@ public class SqlDataSource {
 	 * 
 	 * @return
 	 */
+	@Bean
 	public static DataSource getDataSource() {
+		if (getInstance().getPool() != null) {
+			return getInstance().getPool();
+		}
+		
 		DataSource result = null;
+		Properties properties = new Properties(PropertiesEnum.MAC_PROPERTIES.getName());
 
 		/** Connessione tramite parametri core.properties */
-		String jdbcUrl = properties.getConnectionUri();
+		String jdbcUrl = properties.getProperty(PropertiesEnum.URL.getName());
 		if (StringUtils.isNotBlank(jdbcUrl)) {
 			com.zaxxer.hikari.HikariConfig config = new com.zaxxer.hikari.HikariConfig();
 			config.setJdbcUrl(String.format(jdbcUrl));
 
-			boolean useSSL = Boolean.parseBoolean(properties.getSsl());
+			boolean useSSL = Boolean.parseBoolean(properties.getProperty(PropertiesEnum.SSL.getName()));
 			config.addDataSourceProperty("useSSL", useSSL);
 
-			String username = properties.getConnectionUsername();
+			String username = properties.getProperty(PropertiesEnum.USERNAME.getName());
 			config.setUsername(username);
 
-			String password = properties.getConnectionPassword();
+			String password = properties.getProperty(PropertiesEnum.PASSWORD.getName());
 			config.setPassword(password);
 
-			config.setMaximumPoolSize(10);
+			config.setMaximumPoolSize(15);
 
 			result = new com.zaxxer.hikari.HikariDataSource(config);
 		}

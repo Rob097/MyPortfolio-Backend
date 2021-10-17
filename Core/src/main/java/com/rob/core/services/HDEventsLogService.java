@@ -32,7 +32,7 @@ public class HDEventsLogService implements IHDEventsLogService {
 	public HDEventsLog create(HDEventsLog data)  {
 		Validate.notNull(data, "Parametro obbligatorio mancante: log.");
 		if (data.getUserId() == null) {
-			String userId = /*SecurityContextHolder.getContext().getAuthentication().getName();*/"1";
+			Integer userId = /*SecurityContextHolder.getContext().getAuthentication().getName();*/1;
 			data.setUserId(userId);
 		}
 		if (data.getDate() == null) {

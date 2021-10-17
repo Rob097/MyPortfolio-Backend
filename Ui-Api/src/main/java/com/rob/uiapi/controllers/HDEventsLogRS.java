@@ -142,7 +142,7 @@ public class HDEventsLogRS implements UIApiRS<HDEventsLogR, HDEventsLogQ> {
 	 * 
 	 * @throws Exception in caso di errore
 	 */
-	@PostMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@Override
 	public ResponseEntity<MessageResource<HDEventsLogR>> create(@RequestBody MetadataResource<HDEventsLogR> resource) throws Exception {
 
@@ -171,7 +171,7 @@ public class HDEventsLogRS implements UIApiRS<HDEventsLogR, HDEventsLogQ> {
 	 * 
 	 * @throws Exception in caso di errore
 	 */
-	@PutMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@PutMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@Override
 	public ResponseEntity<MessageResource<HDEventsLogR>> update(
 			@PathVariable("id") String id,

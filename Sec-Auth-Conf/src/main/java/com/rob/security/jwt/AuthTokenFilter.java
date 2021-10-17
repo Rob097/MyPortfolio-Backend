@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.rob.core.models.enums.PropertiesEnum;
 import com.rob.core.utils.Properties;
 
 import io.jsonwebtoken.Claims;
@@ -38,8 +39,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	@Autowired
 	private JwtUtils jwtUtils;
 
-	@Autowired
-	private Properties properties;
+	private Properties properties = new Properties(PropertiesEnum.MAIN_PROPERTIES.getName());
+	private final String TOKEN_HEADER = properties.getProperty(PropertiesEnum.TOKEN_HEADER.getName());
 
 	private final String idAuthorities = Properties.Id_AUTHORITIES;
 
@@ -76,10 +77,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	}
 
 	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request, String jwt) {
-		String token = request.getHeader(properties.getTokenHeader());
+		String token = request.getHeader(TOKEN_HEADER);
 		if (token != null) {
 			// parse the token.
-			String user = Jwts.parser().setSigningKey(properties.getJwtSecret()).parseClaimsJws(jwt).getBody()
+			String user = Jwts.parser().setSigningKey(properties.getProperty(PropertiesEnum.JWT_SECRET.getName())).parseClaimsJws(jwt).getBody()
 					.getSubject();
 
 			if (user != null) {
@@ -115,10 +116,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	}
 
 	private String parseJwt(HttpServletRequest request) {
-		String headerAuth = request.getHeader(properties.getTokenHeader());
+		String headerAuth = request.getHeader(TOKEN_HEADER);
 
 		if (headerAuth != null && StringUtils.hasText(headerAuth)
-				&& headerAuth.startsWith(properties.getTokenConstant()) && headerAuth.length() > 7) {
+				&& headerAuth.startsWith(properties.getProperty(PropertiesEnum.TOKEN_CONSTANT.getName())) && headerAuth.length() > 7) {
 			return headerAuth.substring(7, headerAuth.length());
 		} else {
 			return null;

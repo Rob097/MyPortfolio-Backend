@@ -1,17 +1,13 @@
 package com.rob.security.services;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-
+import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.rob.core.models.User;
-import com.rob.core.repositories.IUserRepository;
+import com.rob.core.services.IUserService;
 
 
 /**
@@ -22,29 +18,21 @@ import com.rob.core.repositories.IUserRepository;
 public class AuthenticationUserService implements IAuthenticationUserService, UserDetailsService {
 
 	@Autowired
-    private IUserRepository userRepository;
+    private IUserService userService;
 	
-	@PersistenceContext
-    EntityManager entityManager;
-
-	@Override
-	public User save(User u) {
-		return userRepository.save(u);		
-	}
+	/*@PersistenceContext
+    EntityManager entityManager;*/
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		/*Query query = entityManager.createNativeQuery("SELECT id, username,password,email,name,surname,user_id,rol.role_id,permission_id FROM user em " + " left join user_roles rol on em.id = rol.user_id " + " left join role_permissions per on rol.role_id = per.role_id " +
-                " WHERE em.username LIKE ?", User.class);*/
-		Query query = entityManager.createNativeQuery("SELECT * FROM user em " +
-                " WHERE em.username LIKE ?", User.class);
-        query.setParameter(1, username + "%");
-
-        User user = null;
-        
-        user = (User) query.getResultList().iterator().next();
-        
+		Validate.notNull(username, "Username obbligatorio per fare il login.");
+		
+		UserDetails user = userService.loadUserByUsername(username);
+		
+		Validate.notNull(user, "Utente non trovato con l'username inserito.");
+		
 		return user;
+		
 	}
 
 }

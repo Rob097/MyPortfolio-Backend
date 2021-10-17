@@ -1,6 +1,5 @@
 package com.rob.core.utils.db;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,7 +36,6 @@ public final class PreparedStatementBuilder extends SessionObject implements Aut
 											// esecuzione query
 	private boolean traceEnable = false; // se true, forza tracciamento comandi eseguiti
 
-	// private int maxRows = 0; //Se maggiore di 0, limita il numero dei risultati
 	private Range range; // Paginazione dei risultati, se non nullo limita i risultati dal record "start"
 							// al record "end"
 
@@ -45,9 +43,12 @@ public final class PreparedStatementBuilder extends SessionObject implements Aut
 	private boolean count = false;
 
 	private final static char placeHolder = '?';
-	public final static int maxInParameters = 999; // Numero massimo di parametri accettati in una "IN/NOT IN". Potremmo
-													// spezzare in più "IN", ma il calo di prestazioni sarebbe
-													// devastante
+	/**
+	 * Numero massimo di parametri accettati in una "IN/NOT IN". Potremmo spezzare
+	 * in più "IN", ma il calo di prestazioni sarebbe devastante
+	 */
+	public final static int maxInParameters = 999;
+
 	private List<String> warnings = new StringList();
 
 	protected Vector<Statement> givenStatements = new Vector<Statement>();
@@ -253,9 +254,6 @@ public final class PreparedStatementBuilder extends SessionObject implements Aut
 	public PreparedStatementBuilder addBindVariable(String paramName, String value) {
 		boolean upperCase = true; // DEFAULT: Il valore del campo viene messo in uppercase
 		return addBindVariableWithCase(paramName, value, upperCase);
-//		BindVariableInfo var = new BindVariableInfo(paramName, BindVariableTypeEnum.STRING, value);
-//		addBindVariable(var);
-//		return this;
 	}
 
 	/**
@@ -339,12 +337,6 @@ public final class PreparedStatementBuilder extends SessionObject implements Aut
 			return this;
 		}
 
-		// TO_DATE(?,'DD/MM/YYYY HH24:MI:SS') dove "?" VARCHAR2
-		// Questo garantisce il corretto uso degli indici
-
-		// Aggiunta parametro con formattazione
-
-		// Corretto bug salvataggio delle date con ora in postgres
 		this.sql.append(" STR_TO_DATE(");
 
 		if (value != null) {
@@ -586,141 +578,55 @@ public final class PreparedStatementBuilder extends SessionObject implements Aut
 		return pst;
 	}
 
-	/** Restituisce un CallableStatement pronto per l'esecuzione */
-	private CallableStatement prepareCall(SqlConnection con) throws SQLException {
-		if (con == null) {
-			throw new SQLException("Connection is null!");
-		}
+	/**
+	 * Restituisce un CallableStatement pronto per l'esecuzione private
+	 * CallableStatement prepareCall(SqlConnection con) throws SQLException { if
+	 * (con == null) { throw new SQLException("Connection is null!"); }
+	 * 
+	 * CallableStatement stmt = con.prepareCall(this.getSql().toString());
+	 * 
+	 * // Memorizza il preparedStatements (per il successivo rilascio risorse)
+	 * givenStatements.add(stmt);
+	 * 
+	 * for (BindVariableInfo par : this.getBindVarInfos()) { if (par.isInput()) { //
+	 * Parametro in input setBindVariable(stmt, par.getParamPos(), par.getValue());
+	 * } else { // Parametro in output registerOutParameter(stmt, par.getParamPos(),
+	 * par); } }
+	 * 
+	 * return stmt; }
+	 */
 
-		CallableStatement stmt = con.prepareCall(this.getSql().toString());
-
-		// Memorizza il preparedStatements (per il successivo rilascio risorse)
-		givenStatements.add(stmt);
-
-		for (BindVariableInfo par : this.getBindVarInfos()) {
-			if (par.isInput()) {
-				// Parametro in input
-				setBindVariable(stmt, par.getParamPos(), par.getValue());
-			} else {
-				// Parametro in output
-				registerOutParameter(stmt, par.getParamPos(), par);
-			}
-		}
-
-		return stmt;
-	}
-
-	/** Registra parametro di outPut su CallableStatement */
-	private void registerOutParameter(CallableStatement stmt, int i, BindVariableInfo par) throws SQLException {
-
-		if (par.getTypeEnum() == BindVariableTypeEnum.STRING) {
-			stmt.registerOutParameter(i, java.sql.Types.VARCHAR);
-
-		} else if (par.getTypeEnum() == BindVariableTypeEnum.INTEGER) {
-			stmt.registerOutParameter(i, java.sql.Types.INTEGER);
-
-		} else if (par.getTypeEnum() == BindVariableTypeEnum.LONG) {
-			stmt.registerOutParameter(i, java.sql.Types.NUMERIC);
-
-		} else if (par.getTypeEnum() == BindVariableTypeEnum.FLOAT) {
-			stmt.registerOutParameter(i, java.sql.Types.FLOAT);
-
-		} else if (par.getTypeEnum() == BindVariableTypeEnum.DOUBLE) {
-			stmt.registerOutParameter(i, java.sql.Types.DOUBLE);
-
-		} else if (par.getTypeEnum() == BindVariableTypeEnum.BOOLEAN) {
-			stmt.registerOutParameter(i, java.sql.Types.BOOLEAN);
-
-		} else if (par.getTypeEnum() == BindVariableTypeEnum.CALENDAR) {
-			stmt.registerOutParameter(i, java.sql.Types.TIMESTAMP);
-
-		} else if (par.getTypeEnum() == BindVariableTypeEnum.DATE) {
-			stmt.registerOutParameter(i, java.sql.Types.TIMESTAMP);
-		}
-
-	}
-
-	/** Preapara ed esegue un callable statement */
-	public List<BindVariableInfo> executeCall(Connection con) throws SQLException {
-		SqlConnection sqlConn = new SqlConnection(con);
-		return executeCall(sqlConn);
-	}
-
-	/** Preapara ed esegue un callable statement */
-	public List<BindVariableInfo> executeCall(SqlConnection con) throws SQLException {
-		ElapsedMeter crono = new ElapsedMeter();
-		List<BindVariableInfo> outPut = new ArrayList<BindVariableInfo>();
-
-		try {
-			CallableStatement pst = this.prepareCall(con);
-			pst.execute();
-
-			for (BindVariableInfo par : this.bindVarInfos) {
-				// Scarta i parametri di inputPut
-				if (par.isInput()) {
-					continue;
-				}
-
-				// Restituisco i parametri di outPut previsti
-				outPut.add(par);
-
-				// Gestione NULL
-				if (pst.getObject(par.getParamPos()) == null) {
-					par.setValue(null);
-					continue;
-				}
-
-				// Valorizzo il risultato
-				if (par.getTypeEnum() == BindVariableTypeEnum.STRING) {
-					// in PostgreSQL '' non viene considerato null come in Oracle
-					// quindi se value è stringa vuota setto null per avere lo stesso comportamento
-					// per Oracle e PostgreSQL
-					par.setValue(
-							StringUtils.isNotEmpty(pst.getString(par.getParamPos())) ? pst.getString(par.getParamPos())
-									: null);
-
-				} else if (par.getTypeEnum() == BindVariableTypeEnum.INTEGER) {
-					par.setValue(pst.getInt(par.getParamPos()));
-
-				} else if (par.getTypeEnum() == BindVariableTypeEnum.LONG) {
-					par.setValue(pst.getLong(par.getParamPos()));
-
-				} else if (par.getTypeEnum() == BindVariableTypeEnum.FLOAT) {
-					par.setValue(pst.getFloat(par.getParamPos()));
-
-				} else if (par.getTypeEnum() == BindVariableTypeEnum.DOUBLE) {
-					par.setValue(pst.getDouble(par.getParamPos()));
-
-				} else if (par.getTypeEnum() == BindVariableTypeEnum.BOOLEAN) {
-					par.setValue(pst.getBoolean(par.getParamPos()));
-
-				} else if (par.getTypeEnum() == BindVariableTypeEnum.CALENDAR) {
-					par.setValue(pst.getTimestamp(par.getParamPos()));
-
-				} else if (par.getTypeEnum() == BindVariableTypeEnum.DATE) {
-					par.setValue(pst.getTimestamp(par.getParamPos()));
-				}
-			}
-
-			return outPut;
-
-		} catch (SQLException ex) {
-			// Log eccezione
-			String sql = getStatementBuilderAsString(this);
-			// System.out.println(ex.getMessage() + " > " + sql);
-			logger.error(sql, ex);
-
-			// In caso di errore, rilascia immediatamente le risorse
-			this.close();
-
-			// Rilancia eccezione
-			throw ex;
-
-		} finally {
-			writeStatement(crono.partialDuration(true), con);
-
-		}
-	}
+	/**
+	 * Registra parametro di outPut su CallableStatement private void
+	 * registerOutParameter(CallableStatement stmt, int i, BindVariableInfo par)
+	 * throws SQLException {
+	 * 
+	 * if (par.getTypeEnum() == BindVariableTypeEnum.STRING) {
+	 * stmt.registerOutParameter(i, java.sql.Types.VARCHAR);
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.INTEGER) {
+	 * stmt.registerOutParameter(i, java.sql.Types.INTEGER);
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.LONG) {
+	 * stmt.registerOutParameter(i, java.sql.Types.NUMERIC);
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.FLOAT) {
+	 * stmt.registerOutParameter(i, java.sql.Types.FLOAT);
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.DOUBLE) {
+	 * stmt.registerOutParameter(i, java.sql.Types.DOUBLE);
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.BOOLEAN) {
+	 * stmt.registerOutParameter(i, java.sql.Types.BOOLEAN);
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.CALENDAR) {
+	 * stmt.registerOutParameter(i, java.sql.Types.TIMESTAMP);
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.DATE) {
+	 * stmt.registerOutParameter(i, java.sql.Types.TIMESTAMP); }
+	 * 
+	 * }
+	 */
 
 	/** Esegue una query e restituisce il risultato */
 	public ResultSet executeQuery(Connection con) throws SQLException {
@@ -961,47 +867,6 @@ public final class PreparedStatementBuilder extends SessionObject implements Aut
 	}
 
 	/**
-	 * Metodo utilizzato per testare procedure, facendo poi rollback immediatamente
-	 * (attenzione a pragma)
-	 */
-	public void executeRollbackCalls(Connection con) throws SQLException {
-		SqlConnection sqlConn = new SqlConnection(con);
-		executeRollbackCalls(sqlConn);
-	}
-
-	/**
-	 * Metodo utilizzato per testare procedure, facendo poi rollback immediatamente
-	 * (attenzione a pragma)
-	 */
-	public void executeRollbackCalls(SqlConnection con) throws SQLException {
-		// Memorizza stato connessione all'ingresso
-		boolean autoCommit = con.getConnection().getAutoCommit();
-
-		try {
-			con.getConnection().setAutoCommit(false);
-
-			this.executeCall(con);
-
-			con.getConnection().rollback();
-
-		} catch (SQLException ex) {
-			// Log eccezione
-			String sql = getStatementBuilderAsString(this);
-			// System.out.println(ex.getMessage() + " > " + sql);
-			logger.error(sql, ex);
-
-			// Rilancia eccezione
-			throw ex;
-
-		} finally {
-			// Ripristina precedente autocommit
-			con.getConnection().setAutoCommit(autoCommit);
-
-			this.close();
-		}
-	}
-
-	/**
 	 * Rilascia le risorse (statements,resultsets) istanziate dal
 	 * PreparedStatementBuilder
 	 */
@@ -1025,11 +890,102 @@ public final class PreparedStatementBuilder extends SessionObject implements Aut
 		} catch (Exception e) {
 			logger.error("Si è verificato un errore", e);
 		}
-
-		// Svuota parametri e varnings (teoricamente non necessario)
-		// this.bindVarInfos.clear();
-		// this.warnings.clear();
-		// this.sql = new StringBuffer(2048);
 	}
+
+	/**
+	 * Preapara ed esegue un callable statement public List<BindVariableInfo>
+	 * executeCall(Connection con) throws SQLException { SqlConnection sqlConn = new
+	 * SqlConnection(con); return executeCall(sqlConn); }
+	 * 
+	 * /** Preapara ed esegue un callable statement public List<BindVariableInfo>
+	 * executeCall(SqlConnection con) throws SQLException { ElapsedMeter crono = new
+	 * ElapsedMeter(); List<BindVariableInfo> outPut = new
+	 * ArrayList<BindVariableInfo>();
+	 * 
+	 * try { CallableStatement pst = this.prepareCall(con); pst.execute();
+	 * 
+	 * for (BindVariableInfo par : this.bindVarInfos) { // Scarta i parametri di
+	 * inputPut if (par.isInput()) { continue; }
+	 * 
+	 * // Restituisco i parametri di outPut previsti outPut.add(par);
+	 * 
+	 * // Gestione NULL if (pst.getObject(par.getParamPos()) == null) {
+	 * par.setValue(null); continue; }
+	 * 
+	 * // Valorizzo il risultato if (par.getTypeEnum() ==
+	 * BindVariableTypeEnum.STRING) { // in PostgreSQL '' non viene considerato null
+	 * come in Oracle // quindi se value è stringa vuota setto null per avere lo
+	 * stesso comportamento // per Oracle e PostgreSQL par.setValue(
+	 * StringUtils.isNotEmpty(pst.getString(par.getParamPos())) ?
+	 * pst.getString(par.getParamPos()) : null);
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.INTEGER) {
+	 * par.setValue(pst.getInt(par.getParamPos()));
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.LONG) {
+	 * par.setValue(pst.getLong(par.getParamPos()));
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.FLOAT) {
+	 * par.setValue(pst.getFloat(par.getParamPos()));
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.DOUBLE) {
+	 * par.setValue(pst.getDouble(par.getParamPos()));
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.BOOLEAN) {
+	 * par.setValue(pst.getBoolean(par.getParamPos()));
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.CALENDAR) {
+	 * par.setValue(pst.getTimestamp(par.getParamPos()));
+	 * 
+	 * } else if (par.getTypeEnum() == BindVariableTypeEnum.DATE) {
+	 * par.setValue(pst.getTimestamp(par.getParamPos())); } }
+	 * 
+	 * return outPut;
+	 * 
+	 * } catch (SQLException ex) { // Log eccezione String sql =
+	 * getStatementBuilderAsString(this); // System.out.println(ex.getMessage() + "
+	 * > " + sql); logger.error(sql, ex);
+	 * 
+	 * // In caso di errore, rilascia immediatamente le risorse this.close();
+	 * 
+	 * // Rilancia eccezione throw ex;
+	 * 
+	 * } finally { writeStatement(crono.partialDuration(true), con);
+	 * 
+	 * } }
+	 */
+
+	/**
+	 * Metodo utilizzato per testare procedure, facendo poi rollback immediatamente
+	 * (attenzione a pragma)
+	 * 
+	 * public void executeRollbackCalls(Connection con) throws SQLException {
+	 * SqlConnection sqlConn = new SqlConnection(con);
+	 * executeRollbackCalls(sqlConn); }
+	 * 
+	 * /** Metodo utilizzato per testare procedure, facendo poi rollback
+	 * immediatamente (attenzione a pragma)
+	 * 
+	 * public void executeRollbackCalls(SqlConnection con) throws SQLException { //
+	 * Memorizza stato connessione all'ingresso boolean autoCommit =
+	 * con.getConnection().getAutoCommit();
+	 * 
+	 * try { con.getConnection().setAutoCommit(false);
+	 * 
+	 * this.executeCall(con);
+	 * 
+	 * con.getConnection().rollback();
+	 * 
+	 * } catch (SQLException ex) { // Log eccezione String sql =
+	 * getStatementBuilderAsString(this); // System.out.println(ex.getMessage() + "
+	 * > " + sql); logger.error(sql, ex);
+	 * 
+	 * // Rilancia eccezione throw ex;
+	 * 
+	 * } finally { // Ripristina precedente autocommit
+	 * con.getConnection().setAutoCommit(autoCommit);
+	 * 
+	 * this.close(); } }
+	 */
 
 }

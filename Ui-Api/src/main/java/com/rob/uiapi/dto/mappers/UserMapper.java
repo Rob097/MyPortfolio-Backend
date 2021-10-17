@@ -1,9 +1,11 @@
 package com.rob.uiapi.dto.mappers;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.rob.core.models.Role;
 import com.rob.core.models.User;
 import com.rob.core.utils.java.IMapper;
 import com.rob.uiapi.dto.models.UserR;
@@ -26,13 +28,13 @@ public class UserMapper implements IMapper<UserR, User>{
 			output = new User();
 		}
 		
-		//output.setId(""+input.getId());
+		output.setId(input.getId());
 		output.setEmail(input.getEmail());
 		output.setPassword(input.getPassword());
 		output.setUsername(input.getUsername());
 		output.setName("Name");
 		output.setSurname("Surname");
-		output.setRolesId(input.getRoles().stream().map(role -> role.getId()).collect(Collectors.toSet()));
+		output.setRoles(input.getRoles().stream().map(role -> Role.byId(role.getId())).collect(Collectors.toCollection(ArrayList::new)));
 		
 		return output;
 		

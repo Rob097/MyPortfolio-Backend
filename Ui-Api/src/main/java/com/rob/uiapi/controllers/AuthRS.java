@@ -1,5 +1,6 @@
 package com.rob.uiapi.controllers;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
@@ -7,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,24 +24,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rob.core.database.RoleSearchCriteria;
+import com.rob.core.database.UserSearchCriteria;
+import com.rob.core.fetch.RoleFetchHandler;
+import com.rob.core.fetch.modules.FetchBuilder;
 import com.rob.core.models.Role;
 import com.rob.core.models.User;
-import com.rob.core.services.IRoleService;
-import com.rob.core.services.UserService;
+import com.rob.core.models.enums.PropertiesEnum;
+import com.rob.core.repositories.IRoleRepository;
+import com.rob.core.repositories.IUserRepository;
+import com.rob.core.services.IUserService;
 import com.rob.core.utils.Properties;
+import com.rob.core.utils.java.IntegerList;
 import com.rob.security.jwt.JwtUtils;
 import com.rob.security.payloads.request.LoginRequest;
 import com.rob.security.payloads.request.SignupRequest;
 import com.rob.security.payloads.response.JwtResponse;
 import com.rob.security.payloads.response.MessageResponse;
+import com.rob.uiapi.dto.mappers.UserMapper;
 import com.rob.uiapi.dto.models.UserR;
 
 @CrossOrigin(origins = "*", maxAge = 3600, allowCredentials = "false")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthRS {
-	@Autowired
-	private Properties properties;
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -51,10 +59,19 @@ public class AuthRS {
 	private JwtUtils jwtUtils;
 
 	@Autowired
-	UserService userService;
+	private IUserService userService;
 
 	@Autowired
-	IRoleService roleService;
+	private IUserRepository userRepository;
+
+	@Autowired
+	private IRoleRepository roleRepository;
+
+	@Autowired
+	private UserMapper userMapper;
+	
+	private Properties mainProperties = new Properties(PropertiesEnum.MAIN_PROPERTIES.getName());
+	private Properties macProperties = new Properties(PropertiesEnum.MAC_PROPERTIES.getName());
 
 	/*
 	 * @Autowired
@@ -77,10 +94,11 @@ public class AuthRS {
 	 *                     (username and password).
 	 * @param response
 	 * @return JwtResponse with the token and the roles.
+	 * @throws SQLException
 	 */
 	@PostMapping("/signin")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest,
-			HttpServletResponse response) {
+			HttpServletResponse response) throws SQLException {
 		Authentication authentication;
 		User user = null;
 
@@ -90,11 +108,6 @@ public class AuthRS {
 					new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
 			user = (User) userService.loadUserByUsername(loginRequest.getUsername());
-
-			/*
-			 * Important! Setting default user database.
-			 * utentiTemplate.setDefaultUserDb(user.getId());
-			 */
 
 		} catch (AuthenticationException e) {
 			e.printStackTrace();
@@ -106,9 +119,12 @@ public class AuthRS {
 		String token = jwtUtils.generateJwtToken(authentication, loginRequest.isRememberMe(), "" + user.getId());
 
 		User userDetails = (User) authentication.getPrincipal();
-		List<Role> roles = roleService.findAllByUserId(userDetails.getId());
-		// List<String> roles = userDetails.getAuthorities().stream().map(item ->
-		// item.getAuthority()).collect(Collectors.toList());
+		RoleSearchCriteria criteria = new RoleSearchCriteria();
+		criteria.setUserId(userDetails.getId());
+		FetchBuilder fetchBuilder = new FetchBuilder();
+		fetchBuilder.addOption(RoleFetchHandler.FETCH_PERMISSIONS);
+		criteria.setFetch(fetchBuilder.build());
+		List<Role> roles = roleRepository.findByCriteria(criteria);
 
 		if (setCookie(loginRequest.isRememberMe(), token, response)) {
 			if (token_cookie != null)
@@ -135,7 +151,7 @@ public class AuthRS {
 			HttpServletResponse response) {
 
 		// System.out.println("HEADERS: " + request.getHeader("authorization"));
-		String authToken = request.getHeader(properties.getTokenHeader().toString());
+		String authToken = request.getHeader(mainProperties.getProperty(PropertiesEnum.TOKEN_HEADER.getName()));
 		boolean rememberMe = false;
 
 		Cookie[] cookies = request.getCookies();
@@ -154,7 +170,7 @@ public class AuthRS {
 			if (jwtUtils.canTokenBeRefreshed(token)) {
 				String refreshedToken = jwtUtils.refreshToken(token, rememberMe);
 
-				response.setHeader(properties.getTokenHeader(), refreshedToken);
+				response.setHeader(mainProperties.getProperty(PropertiesEnum.TOKEN_HEADER.getName()), refreshedToken);
 
 				response.setHeader("exp", jwtUtils.getExpirationDateFromToken(refreshedToken).toString());
 
@@ -180,48 +196,31 @@ public class AuthRS {
 	public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest, HttpServletRequest request) {
 
 		try {
-			/*
-			 * if (userService.existsByUsername(signUpRequest.getUsername())) { return
-			 * ResponseEntity.badRequest().body(new
-			 * MessageResponse("Error: Username is already taken!")); }
-			 */
 
-			/*
-			 * if (userService.existsByEmail(signUpRequest.getEmail())) { return
-			 * ResponseEntity.badRequest().body(new
-			 * MessageResponse("Error: Email is already in use!")); }
-			 */
+			UserSearchCriteria criteria = new UserSearchCriteria();
+			criteria.setUsername(signUpRequest.getUsername());
+			Validate.isTrue(userRepository.findSingleByCriteria(criteria) == null, "Error: Username is already taken!");
+
+			criteria = new UserSearchCriteria();
+			criteria.setEmail(signUpRequest.getEmail());
+			Validate.isTrue(userRepository.findSingleByCriteria(criteria) == null, "Error: Email is already in use!");
 
 			// Create new user's account
-			UserR user = new UserR(signUpRequest.getUsername(), signUpRequest.getEmail(),
+			UserR userR = new UserR(signUpRequest.getUsername(), signUpRequest.getEmail(),
 					encoder.encode(signUpRequest.getPassword()));
 
-			// Set<String> strRoles = signUpRequest.getRoles();
-			// Set<Role> roles = new HashSet<>();
+			User user = userMapper.map(userR);
 
-			/*
-			 * if (strRoles == null) { roles.add(roleServices.findByName((ERole.ROLE_BASIC))
-			 * .orElseThrow(() -> new RuntimeException("Error: Role is not found."))); }
-			 * else { strRoles.forEach(role -> { switch (role) { case "admin":
-			 * roles.add(roleServices.findByName(ERole.ROLE_ADMIN) .orElseThrow(() -> new
-			 * RuntimeException("Error: Role is not found."))); break; case "editor":
-			 * roles.add(roleServices.findByName(ERole.ROLE_EDITOR) .orElseThrow(() -> new
-			 * RuntimeException("Error: Role is not found."))); break; case "basic":
-			 * default:
-			 * 
-			 * roles.add(roleServices.findByName(ERole.ROLE_BASIC) .orElseThrow(() -> new
-			 * RuntimeException("Error: Role is not found.")));
-			 * roles.add(roleServices.findByName(ERole.ROLE_ADMIN) .orElseThrow(() -> new
-			 * RuntimeException("Error: Role is not found."))); break; } }); }
-			 * 
-			 * user.setRoles(roles);
-			 */
+			IntegerList strRoles = new IntegerList();
+			strRoles.addAll(signUpRequest.getRoles());
+			RoleSearchCriteria roleCriteria = new RoleSearchCriteria();
+			roleCriteria.setIds(strRoles);
+			List<Role> roles = roleRepository.findByCriteria(roleCriteria);
+
+			user.setRoles(roles);
+
 			// Save user into user collection in general DB for authentication
-			/* User u = userService.save(userMapper.map(user)); */
-
-			// Save user into Utente collection in the personal database of the user
-			// userService.setDefaultUserDb(u.getId());
-			// userService.saveUtente(u);
+			user = userService.create(user);
 
 			return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 
@@ -237,21 +236,21 @@ public class AuthRS {
 			remember_cookie = new Cookie(REMEMBER_COOKIE_NAME, "" + rememberMe);
 			remember_cookie.setSecure(false); // Set this to true if you're working through https
 			remember_cookie.setHttpOnly(false);
-			remember_cookie.setDomain(properties.getDomainNameCookies());
+			remember_cookie.setDomain(macProperties.getProperty(PropertiesEnum.HOST.getName()));
 			remember_cookie.setPath(PATH_COOKIES); // global cookie accessible every where
 
 			token_cookie = new Cookie(TOKEN_COOKIE_NAME, token);
 			token_cookie.setSecure(false); // Set this to true if you're working through https
 			token_cookie.setHttpOnly(false);
-			token_cookie.setDomain(properties.getDomainNameCookies());
+			token_cookie.setDomain(macProperties.getProperty(PropertiesEnum.HOST.getName()));
 			token_cookie.setPath(PATH_COOKIES); // global cookie accessible every where
 
 			if (!rememberMe) {
-				token_cookie.setMaxAge(properties.getJwtExpirationMs() / 1000);
-				remember_cookie.setMaxAge(properties.getJwtExpirationMs() / 1000);
+				token_cookie.setMaxAge(Integer.parseInt(mainProperties.getProperty(PropertiesEnum.JWT_EXPIRATION.getName())) / 1000);
+				remember_cookie.setMaxAge(Integer.parseInt(mainProperties.getProperty(PropertiesEnum.JWT_EXPIRATION.getName())) / 1000);
 			} else {
-				token_cookie.setMaxAge((int) (properties.getJwtExpirationMsRememberMe() / 1000));
-				remember_cookie.setMaxAge((int) (properties.getJwtExpirationMsRememberMe() / 1000));
+				token_cookie.setMaxAge((int) (Integer.parseInt(mainProperties.getProperty(PropertiesEnum.JWT_EXPIRATION_REMEMBER_ME.getName())) / 1000));
+				remember_cookie.setMaxAge((int) (Integer.parseInt(mainProperties.getProperty(PropertiesEnum.JWT_EXPIRATION_REMEMBER_ME.getName())) / 1000));
 			}
 
 			response.addCookie(remember_cookie);

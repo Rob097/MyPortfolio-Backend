@@ -1,52 +1,55 @@
 package com.rob.core.utils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-import lombok.Data;
+public class Properties extends java.util.Properties{
+	
+	private static final long serialVersionUID = -4259272132135580295L;
 
-@Data
-@Component
-public class Properties {
-
-	private final int jwtExpirationMs;
+	private ClassLoader loader = Thread.currentThread().getContextClassLoader();
 	
-	private final long jwtExpirationMsRememberMe;
-
-	private final String jwtSecret;	
-
-	private final String tokenHeader;
+	public Properties() {
+		super();
+	}
 	
-	private final String tokenConstant;
+	public Properties(String name) {
+		super();
+		try (InputStream resourceStream = loader.getResourceAsStream(name)) {
+		    this.load(resourceStream);
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
+	}
 	
-	private final String domainNameCookies;
 	
-	private final String database;
+	/* CONSTANTS */
+	public static String PATH_COOKIES = "/";
 	
-	private final String connectionUri;
+	public static String Id_AUTHORITIES = "authority";
 	
-	private final String ssl;
+	public static String CLAIM_KEY_AUTHORITIES = "roles";
+	public static String USER_ID_ATTRIBUTE = "userId";
+	public static String ENTITY_ID_ATTRIBUTE = "entity_id";
 	
-	private final String connectionUsername;
+	public static String TOKEN_COOKIE_NAME = "token";
+	public static String REMEMBER_COOKIE_NAME = "rememberMe";
 	
-	private final String connectionPassword;
+	public static String OWNER_JOB = "Owner";
 	
-	private final String encryptEnabled;
+	//ROLES
+	public static String ROLE_BASIC = "BASIC";
+	public static String ROLE_ADMIN = "ADMIN";
+	public static String ROLE_EDITOR = "EDITOR";
 	
-	private final String encryptPassword;
+	public static List<String> ENCRYPT_EXCEPTIONS = Arrays.asList("_class", "_id", "password", "username", "roles", "rolesId", "roleName", "permissionsId");
 	
-	private final String encryptAlgorithm;
-	
-	private final String encryptSalt;
-	
-	private final String encryptIv;
-    
-    
-    @Autowired
+	/*
+	 
+	  @Autowired
     public Properties(
     		@Value("${jwtExpirationMs}") int jwtExpirationMs,
     		@Value("${jwtExpirationMsRememberMe}") long jwtExpirationMsRememberMe,
@@ -70,40 +73,18 @@ public class Properties {
     	this.jwtSecret = jwtSecret;
     	this.tokenHeader = tokenHeader;
     	this.tokenConstant = tokenConstant;
-    	this.domainNameCookies = domainNameCookies;
-    	this.database = database;
+    	this.domainNameCookies = "";//domainNameCookies;
+    	this.database = "";//database;
     	this.connectionUri = connectionUri;
-    	this.ssl = ssl;
-    	this.connectionUsername = connectionUsername;
-    	this.connectionPassword = connectionPassword;
+    	this.ssl = "";//ssl;
+    	this.connectionUsername = "";//connectionUsername;
+    	this.connectionPassword = "";//connectionPassword;
     	this.encryptEnabled = encryptEnabled;
     	this.encryptPassword = encryptPassword;
     	this.encryptAlgorithm = encryptAlgorithm;
 		this.encryptSalt = encryptSalt;
 		this.encryptIv = encryptIv;
     }
-	
-	
-	
-	
-	/* CONSTANTS */
-	public static String PATH_COOKIES = "/";
-	
-	public static String Id_AUTHORITIES = "authority";
-	
-	public static String CLAIM_KEY_AUTHORITIES = "roles";
-	public static String USER_ID_ATTRIBUTE = "userId";
-	public static String ENTITY_ID_ATTRIBUTE = "entity_id";
-	
-	public static String TOKEN_COOKIE_NAME = "token";
-	public static String REMEMBER_COOKIE_NAME = "rememberMe";
-	
-	public static String OWNER_JOB = "Owner";
-	
-	//ROLES
-	public static String ROLE_BASIC = "BASIC";
-	public static String ROLE_ADMIN = "ADMIN";
-	public static String ROLE_EDITOR = "EDITOR";
-	
-	public static List<String> ENCRYPT_EXCEPTIONS = Arrays.asList("_class", "_id", "password", "username", "roles", "rolesId", "roleName", "permissionsId");
+	  
+	 */
 }

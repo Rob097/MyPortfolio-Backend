@@ -8,11 +8,11 @@ import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import com.rob.core.models.User;
+import com.rob.core.models.enums.PropertiesEnum;
 import com.rob.core.utils.Properties;
 
 import io.jsonwebtoken.Claims;
@@ -36,8 +36,10 @@ public class JwtUtils implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Autowired
-	private Properties properties;
+	private Properties properties = new Properties(PropertiesEnum.MAIN_PROPERTIES.getName());
+	private final Long JWT_EXPIRATION_REMEMBER_ME = Long.parseLong(properties.getProperty(PropertiesEnum.JWT_EXPIRATION_REMEMBER_ME.getName()));
+	private final Long JWT_EXPIRATION = Long.parseLong(properties.getProperty(PropertiesEnum.JWT_EXPIRATION.getName()));
+	private final String JWT_SECRET = properties.getProperty(PropertiesEnum.JWT_SECRET.getName());
 
 	private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
@@ -61,27 +63,28 @@ public class JwtUtils implements Serializable {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(CLAIM_KEY_AUTHORITIES, userPrincipal.getAuthorities());
 
-		if (userId != null)
+		if (userId != null) {
 			claims.put(USER_ID_ATTRIBUTE, userId);
+		}
 
 		if (rememberMe) {
-			exp = properties.getJwtExpirationMsRememberMe();
+			exp = JWT_EXPIRATION_REMEMBER_ME;
 		} else {
-			exp = properties.getJwtExpirationMs();
+			exp = JWT_EXPIRATION;
 		}
 
 		return Jwts.builder().setClaims(claims).setSubject((userPrincipal.getUsername())).setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + exp))
-				.signWith(SignatureAlgorithm.HS512, properties.getJwtSecret()).compact();
+				.signWith(SignatureAlgorithm.HS512, JWT_SECRET).compact();
 	}
 
 	public String getUserNameFromJwtToken(String token) {
-		return Jwts.parser().setSigningKey(properties.getJwtSecret()).parseClaimsJws(token).getBody().getSubject();
+		return Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token).getBody().getSubject();
 	}
 
 	public boolean validateJwtToken(String authToken) {
 		try {
-			Jwts.parser().setSigningKey(properties.getJwtSecret()).parseClaimsJws(authToken);
+			Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(authToken);
 			return true;
 		} catch (SignatureException e) {
 			logger.error("Invalid JWT signature: {}", e.getMessage());
@@ -105,7 +108,7 @@ public class JwtUtils implements Serializable {
 
 	Claims getAllClaimsFromToken(String token) {
 		try {
-			Claims claims = Jwts.parser().setSigningKey(properties.getJwtSecret()).parseClaimsJws(token).getBody();
+			Claims claims = Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token).getBody();
 			return claims;
 		} catch (SignatureException e) {
 			logger.error("Invalid JWT signature: {}", e.getMessage());
@@ -153,9 +156,9 @@ public class JwtUtils implements Serializable {
 	private Date calculateExpirationDate(Date createdDate, boolean rememberMe) {
 
 		if (rememberMe) {
-			return new Date(createdDate.getTime() + properties.getJwtExpirationMsRememberMe());
+			return new Date(createdDate.getTime() + JWT_EXPIRATION_REMEMBER_ME);
 		} else {
-			return new Date(createdDate.getTime() + properties.getJwtExpirationMs());
+			return new Date(createdDate.getTime() + JWT_EXPIRATION);
 		}
 
 	}
@@ -174,6 +177,6 @@ public class JwtUtils implements Serializable {
 		claims.setIssuedAt(createdDate);
 		claims.setExpiration(expirationDate);
 
-		return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, properties.getJwtSecret()).compact();
+		return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, JWT_SECRET).compact();
 	}
 }

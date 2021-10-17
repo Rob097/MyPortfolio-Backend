@@ -14,23 +14,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.codec.Hex;
 
+import com.rob.core.models.enums.PropertiesEnum;
 import com.rob.core.utils.Properties;
 
 
 public class DataEncryption {
 private final Logger log = LoggerFactory.getLogger(getClass());
 	
-	private Properties properties;
+	private Properties properties = new Properties(PropertiesEnum.MAIN_PROPERTIES.getName());
 	private static final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
 	private static final String IV_DEFAULT_VALUE = "00000000000000000000000000000000";
-	private static final String ALGORITHM = "AES"; 
-	private final String PASSWORD = properties.getEncryptPassword();
-	private final String KEY = properties.getEncryptSalt();
+	private static final String ALGORITHM = "AES";
 	private static final String COLUMN_SUFFIX = "_CR";
 
 	private static DataEncryption dataEncryption;
 	
-	private boolean enabled = Boolean.parseBoolean(properties.getEncryptEnabled());
 	private Cipher encrypter = null;
 	
 	private DataEncryption() {
@@ -49,7 +47,7 @@ private final Logger log = LoggerFactory.getLogger(getClass());
 	}
 	
 	public boolean isEnabled() {
-		return enabled;
+		return Boolean.parseBoolean(properties.getProperty(PropertiesEnum.ENCRYPT_ENABLED.getName()));
 	}
 	
 	public static String getColumnName(String columnName) {
@@ -72,7 +70,7 @@ private final Logger log = LoggerFactory.getLogger(getClass());
 		CallableStatement callableStatement = null;
 		if (connection != null) {
 			try {
-				String cryptFun = properties.getEncryptAlgorithm();
+				String cryptFun = properties.getProperty(PropertiesEnum.ENCRYPT_ALGORITHM.getName());
 				String statement = "";
 				if(StringUtils.isNotEmpty(cryptFun)) {
 					statement = "{call "+cryptFun+"(?,?)}";
@@ -80,8 +78,8 @@ private final Logger log = LoggerFactory.getLogger(getClass());
 					statement = "{call set_crypt_context(?,?)}";
 				}
 				callableStatement = connection.prepareCall(statement);
-				callableStatement.setString(1, PASSWORD);
-				callableStatement.setString(2, KEY);
+				callableStatement.setString(1, properties.getProperty(PropertiesEnum.ENCRYPT_PASSWORD.getName()));
+				callableStatement.setString(2, properties.getProperty(PropertiesEnum.ENCRYPT_SALT.getName()));
 				
 			} catch (SQLException e) {
 				log.error("Errore apertura contesto di criptatura.",e);
@@ -96,7 +94,7 @@ private final Logger log = LoggerFactory.getLogger(getClass());
 			Key secretKey = null;
 			IvParameterSpec algorithmParameters = null;
 			encrypter = Cipher.getInstance(TRANSFORMATION);
-				secretKey = new SecretKeySpec(KEY.getBytes(), ALGORITHM);
+				secretKey = new SecretKeySpec(properties.getProperty(PropertiesEnum.ENCRYPT_SALT.getName()).getBytes(), ALGORITHM);
 				algorithmParameters = new IvParameterSpec(Hex.decode(IV_DEFAULT_VALUE));
 			encrypter.init(Cipher.ENCRYPT_MODE, secretKey, algorithmParameters);
 		}

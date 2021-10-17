@@ -1,11 +1,11 @@
 package com.rob.core.services;
 
-import java.util.List;
+import java.sql.SQLException;
 
 import com.rob.core.models.Permission;
 
 public interface IPermissionService {
 
-	List<Permission> findAllByRoleId(Integer id);
+	Permission create(Permission permission) throws SQLException;
 	
 }

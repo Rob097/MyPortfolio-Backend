@@ -1,6 +1,6 @@
 package com.rob.core.services;
 
-import java.util.List;
+import java.sql.SQLException;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -8,10 +8,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.rob.core.models.User;
 
 
-public interface IUserService {
-	List<User> findAll();
-	
-	User save(User u);
+public interface IUserService {	
 	
 	UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+	
+	User create(User user) throws SQLException;
+	
 }

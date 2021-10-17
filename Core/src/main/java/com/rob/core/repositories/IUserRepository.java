@@ -1,14 +1,24 @@
 package com.rob.core.repositories;
 
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import java.sql.SQLException;
+import java.util.List;
 
+import com.rob.core.database.UserSearchCriteria;
+import com.rob.core.fetch.modules.Fetch;
 import com.rob.core.models.User;
 
+public interface IUserRepository {
+	
+	User findById(String id) throws SQLException;
 
-//This will be AUTO IMPLEMENTED by Spring into a Bean called userRepository
-//CRUD refers Create, Read, Update, Delete
-@Repository
-public interface IUserRepository extends CrudRepository<User, Integer> {
+	User findById(String id, Fetch fetch) throws SQLException;
+	
+	User findSingleByCriteria(UserSearchCriteria criteria) throws SQLException;
+	
+	List<User> findByCriteria(UserSearchCriteria criteria) throws SQLException;
+	
+	User create(User data) throws SQLException;
+	
+	void createRoleRelation(int userId, int roleId) throws SQLException;
 	
 }
