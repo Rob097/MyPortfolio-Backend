@@ -31,8 +31,10 @@ public class UserRMapper implements IMapper<User, UserR>{
 		output.setId(input.getId());
 		output.setEmail(input.getEmail());
 		output.setPassword(input.getPassword());
-		output.setUsername(input.getUsername());		
-		output.setRoles(input.getRoles().stream().map(role -> this.mapRole(role)).collect(Collectors.toSet()));
+		output.setUsername(input.getUsername());	
+		if(input.getRoles()!=null) {
+			output.setRoles(input.getRoles().stream().map(role -> this.mapRole(role)).collect(Collectors.toSet()));
+		}
 		
 		return output;
 		
@@ -47,7 +49,9 @@ public class UserRMapper implements IMapper<User, UserR>{
 		
 		output.setId(input.getId());
 		output.setName(input.getName());
-		output.setPermissions(input.getPermissions().stream().map(permission -> this.mapPermission(permission)).collect(Collectors.toSet()));
+		if(input.getPermissions()!=null) {
+			output.setPermissions(input.getPermissions().stream().map(permission -> this.mapPermission(permission)).collect(Collectors.toSet()));
+		}
 		
 		return output;
 		

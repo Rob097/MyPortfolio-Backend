@@ -1,5 +1,8 @@
 package com.rob.security.configuration;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +17,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.rob.core.utils.Properties;
 import com.rob.security.jwt.AuthEntryPointJwt;
@@ -83,7 +89,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-			.cors().and()
+			.cors().configurationSource(corsConfigurationSource()).and()
 			.csrf().disable()
 			.formLogin().disable()
 			.httpBasic().disable()
@@ -105,6 +111,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		// disable page caching
 		http.headers().cacheControl();
+	}
+	
+	//This can be customized as required
+	CorsConfigurationSource corsConfigurationSource() {
+	    CorsConfiguration configuration = new CorsConfiguration();
+	    List<String> allowOrigins = Arrays.asList(Properties.ALLOWED_ORIGIN);
+	    List<String> allowMethods = Arrays.asList("GET", "OPTIONS");
+	    List<String> allowHeaders = Arrays.asList("*");
+	    configuration.setAllowedOrigins(allowOrigins);
+	    configuration.setAllowedMethods(allowMethods);
+	    configuration.setAllowedHeaders(allowHeaders);
+	    //in case authentication is enabled this flag MUST be set, otherwise CORS requests will fail
+	    configuration.setAllowCredentials(true);
+	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	    source.registerCorsConfiguration("/**", configuration);
+	    return source;
 	}
 
 }

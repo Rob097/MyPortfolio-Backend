@@ -18,6 +18,7 @@ public class Properties extends java.util.Properties{
 	
 	public Properties(String name) {
 		super();
+		
 		try (InputStream resourceStream = loader.getResourceAsStream(name)) {
 		    this.load(resourceStream);
 		} catch (IOException e) {
@@ -28,6 +29,8 @@ public class Properties extends java.util.Properties{
 	
 	/* CONSTANTS */
 	public static String PATH_COOKIES = "/";
+	//public static String ALLOWED_ORIGIN = "http://localhost:4200";
+	public static String ALLOWED_ORIGIN = "https://myportfolio-6a771.web.app";
 	
 	public static String Id_AUTHORITIES = "authority";
 	
