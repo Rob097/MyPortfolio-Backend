@@ -4,7 +4,7 @@ Hi! This is My personal portfolio webApp. This is the backend developed in Sprin
 
 To organize my work as an Agile Company I'm using thee free plan of Atlassian Jira (https://rob-portfolio.atlassian.net).
 
-Please, read the [wiki](https://github.com/Rob097/MyPortfolio-Backend/wiki) of this Repo for further informations.
+Please read this Repo's [wiki](https://github.com/Rob097/MyPortfolio-Backend/wiki) for more information.
 
 Above the specific of how it works 😉
 
