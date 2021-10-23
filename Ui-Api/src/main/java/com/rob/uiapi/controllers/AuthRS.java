@@ -43,6 +43,8 @@ import com.rob.security.payloads.response.JwtResponse;
 import com.rob.security.payloads.response.MessageResponse;
 import com.rob.uiapi.dto.mappers.UserMapper;
 import com.rob.uiapi.dto.models.UserR;
+import com.rob.uiapi.utils.CookieHelper;
+import com.rob.uiapi.utils.SameSite;
 
 @CrossOrigin(origins = "*", maxAge = 3600, allowCredentials = "false")
 @RestController
@@ -126,16 +128,11 @@ public class AuthRS {
 		criteria.setFetch(fetchBuilder.build());
 		List<Role> roles = roleRepository.findByCriteria(criteria);
 
-		if (setCookie(loginRequest.isRememberMe(), token, response)) {
-			if (token_cookie != null)
-				response.addCookie(token_cookie);
-			if (remember_cookie != null)
-				response.addCookie(remember_cookie);
-			return ResponseEntity.ok(new JwtResponse(token, "" + userDetails.getId(), userDetails.getUsername(),
-					userDetails.getEmail(), roles));
-		}
+		setCookie(loginRequest.isRememberMe(), token, response);
 
-		return ResponseEntity.badRequest().body(new MessageResponse("Errore: Qualcosa è andato storto!"));
+		return ResponseEntity.ok(new JwtResponse(token, "" + userDetails.getId(), userDetails.getUsername(),
+					userDetails.getEmail(), roles));
+
 	}
 
 	/**
@@ -174,8 +171,7 @@ public class AuthRS {
 
 				response.setHeader("exp", jwtUtils.getExpirationDateFromToken(refreshedToken).toString());
 
-				if (setCookie(rememberMe, refreshedToken, response))
-					return ResponseEntity.ok(new JwtResponse(refreshedToken));
+				return ResponseEntity.ok(new JwtResponse(refreshedToken));
 
 			}
 
@@ -230,20 +226,24 @@ public class AuthRS {
 		}
 	}
 
-	private boolean setCookie(boolean rememberMe, String token, HttpServletResponse response) {
-
+	private void setCookie(boolean rememberMe, String token, HttpServletResponse response) {
+				
 		try {
+			
 			remember_cookie = new Cookie(REMEMBER_COOKIE_NAME, "" + rememberMe);
 			remember_cookie.setSecure(true); // Set this to true if you're working through https
 			remember_cookie.setHttpOnly(false);
+			remember_cookie.setSecure(true);
 			//remember_cookie.setDomain(mainProperties.getProperty(PropertiesEnum.JWT_CURRENT_DOMAIN.getName()));
 			remember_cookie.setPath(PATH_COOKIES); // global cookie accessible every where
+			
 
 			token_cookie = new Cookie(TOKEN_COOKIE_NAME, token);
 			token_cookie.setSecure(true); // Set this to true if you're working through https
 			token_cookie.setHttpOnly(false);
 			//token_cookie.setDomain(mainProperties.getProperty(PropertiesEnum.JWT_CURRENT_DOMAIN.getName()));
 			token_cookie.setPath(PATH_COOKIES); // global cookie accessible every where
+			
 
 			if (!rememberMe) {
 				token_cookie.setMaxAge(Integer.parseInt(mainProperties.getProperty(PropertiesEnum.JWT_EXPIRATION.getName())) / 1000);
@@ -253,15 +253,13 @@ public class AuthRS {
 				remember_cookie.setMaxAge((int) (Integer.parseInt(mainProperties.getProperty(PropertiesEnum.JWT_EXPIRATION_REMEMBER_ME.getName())) / 1000));
 			}
 
-			response.addCookie(remember_cookie);
-			response.addCookie(token_cookie);
+			CookieHelper.createSetCookieHeader(response, remember_cookie, SameSite.NONE);
+			CookieHelper.createSetCookieHeader(response, token_cookie, SameSite.NONE);
 
-			return true;
 		} catch (Exception e) {
 			System.out.println(e);
 		}
-
-		return false;
+		
 	}
 
 	/*
