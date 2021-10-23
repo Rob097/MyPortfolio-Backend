@@ -234,15 +234,15 @@ public class AuthRS {
 
 		try {
 			remember_cookie = new Cookie(REMEMBER_COOKIE_NAME, "" + rememberMe);
-			remember_cookie.setSecure(false); // Set this to true if you're working through https
+			remember_cookie.setSecure(true); // Set this to true if you're working through https
 			remember_cookie.setHttpOnly(false);
-			remember_cookie.setDomain(mainProperties.getProperty(PropertiesEnum.JWT_CURRENT_DOMAIN.getName()));
+			//remember_cookie.setDomain(mainProperties.getProperty(PropertiesEnum.JWT_CURRENT_DOMAIN.getName()));
 			remember_cookie.setPath(PATH_COOKIES); // global cookie accessible every where
 
 			token_cookie = new Cookie(TOKEN_COOKIE_NAME, token);
-			token_cookie.setSecure(false); // Set this to true if you're working through https
+			token_cookie.setSecure(true); // Set this to true if you're working through https
 			token_cookie.setHttpOnly(false);
-			token_cookie.setDomain(mainProperties.getProperty(PropertiesEnum.JWT_CURRENT_DOMAIN.getName()));
+			//token_cookie.setDomain(mainProperties.getProperty(PropertiesEnum.JWT_CURRENT_DOMAIN.getName()));
 			token_cookie.setPath(PATH_COOKIES); // global cookie accessible every where
 
 			if (!rememberMe) {
