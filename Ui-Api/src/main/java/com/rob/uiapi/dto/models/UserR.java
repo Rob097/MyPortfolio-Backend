@@ -26,10 +26,14 @@ private static final long serialVersionUID = -6128934680400004965L;
 	@NoArgsConstructor
 	public static class RoleR implements GrantedAuthority{
 		
-		private static final long serialVersionUID = 7708442137300080212L;
+		private static final long serialVersionUID = 7708442137300080212L;		
 
 		@Data
-		public static class PermissionR{
+		public static class PermissionR{		
+			
+			public PermissionR() {
+				super();
+			}
 			
 			@Id
 			@NotBlank
@@ -39,7 +43,32 @@ private static final long serialVersionUID = -6128934680400004965L;
 			private String name;
 
 			private String description;
+
+			public Integer getId() {
+				return id;
+			}
+			public void setId(Integer id) {
+				this.id = id;
+			}
+
+			public String getName() {
+				return name;
+			}
+			public void setName(String name) {
+				this.name = name;
+			}
+
+			public String getDescription() {
+				return description;
+			}
+			public void setDescription(String description) {
+				this.description = description;
+			}		
 			
+		}
+		
+		public RoleR() {
+			super();
 		}
 		
 		@Id
@@ -55,13 +84,37 @@ private static final long serialVersionUID = -6128934680400004965L;
 		@Override
 		public String getAuthority() {
 			return ""+id;
-		}		
+		}
+
+		public Integer getId() {
+			return id;
+		}
+		public void setId(Integer id) {
+			this.id = id;
+		}
+
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public Set<PermissionR> getPermissions() {
+			return permissions;
+		}
+		public void setPermissions(Set<PermissionR> permissions) {
+			this.permissions = permissions;
+		}
 		
 	}
 	
-	
 	/* CAMPI DI USERR */
 
+	public UserR() {
+		super();
+	}
+	
 	@Id
 	@NotBlank
 	private Integer id;
@@ -127,4 +180,43 @@ private static final long serialVersionUID = -6128934680400004965L;
 		// TODO Auto-generated method stub
 		return true;
 	}
+
+	@Override
+	public String getPassword() {
+		return this.password;
+	}
+
+	@Override
+	public String getUsername() {
+		return this.username;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public Set<RoleR> getRoles() {
+		return roles;
+	}
+	public void setRoles(Set<RoleR> roles) {
+		this.roles = roles;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}	
+	
 }
