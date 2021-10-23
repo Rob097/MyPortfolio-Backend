@@ -4,42 +4,25 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-
-import org.springframework.data.annotation.Id;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class UserR implements UserDetails {
-private static final long serialVersionUID = -6128934680400004965L;
 	
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
+private static final long serialVersionUID = -6128934680400004965L;	
+
 	public static class RoleR implements GrantedAuthority{
 		
 		private static final long serialVersionUID = 7708442137300080212L;		
 
-		@Data
 		public static class PermissionR{		
-			
 			public PermissionR() {
 				super();
-			}
+			}			
+
 			
-			@Id
-			@NotBlank
 			private Integer id;
-			
-			@NotBlank
+
 			private String name;
 
 			private String description;
@@ -71,14 +54,10 @@ private static final long serialVersionUID = -6128934680400004965L;
 			super();
 		}
 		
-		@Id
-		@NotBlank
 		private Integer id;
 
-		@NotBlank
 		private String name;
 
-		@NotBlank
 		private Set<PermissionR> permissions;
 
 		@Override
@@ -114,27 +93,21 @@ private static final long serialVersionUID = -6128934680400004965L;
 	public UserR() {
 		super();
 	}
-	
-	@Id
-	@NotBlank
+
 	private Integer id;
 
-	@NotBlank
 	private String username;
 
-	@Email
-	@NotBlank
 	private String email;
 
-	@NotBlank
 	private String password;
 	
 	private Set<RoleR> roles = new HashSet<>();
 
 	public UserR(
-			@NotBlank String username, 
-			@NotBlank @Email String email,
-			@NotBlank String password) {
+			String username, 
+			String email,
+			String password) {
 		super();
 		this.username = username;
 		this.email = email;
