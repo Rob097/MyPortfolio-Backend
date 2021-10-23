@@ -29,8 +29,9 @@ public class Properties extends java.util.Properties{
 	
 	/* CONSTANTS */
 	public static String PATH_COOKIES = "/";
-	//public static String ALLOWED_ORIGIN = "http://localhost:4200";
-	public static String ALLOWED_ORIGIN = "https://myportfolio-6a771.web.app";
+	public static List<String> ALLOWED_ORIGINS = Arrays.asList("http://localhost:4200", "https://myportfolio-6a771.web.app");
+	public static List<String> ALLOW_METHODS = Arrays.asList("OPTIONS", "GET", "POST", "PUT", "DELETE");
+	public static List<String> ALLOW_HEADERS = Arrays.asList("*");
 	
 	public static String Id_AUTHORITIES = "authority";
 	

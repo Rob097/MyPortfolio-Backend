@@ -20,13 +20,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rob.core.database.UserSearchCriteria;
+import com.rob.core.fetch.UserFetchHandler;
+import com.rob.core.fetch.modules.Fetch;
+import com.rob.core.fetch.modules.FetchBuilder;
 import com.rob.core.models.User;
 import com.rob.core.repositories.IUserRepository;
 import com.rob.core.utils.db.Range;
 import com.rob.core.utils.db.RangeUtils;
 import com.rob.uiapi.controllers.views.IView;
 import com.rob.uiapi.controllers.views.Normal;
-import com.rob.uiapi.dto.mappers.UserMapper;
+import com.rob.uiapi.controllers.views.Synthetic;
 import com.rob.uiapi.dto.mappers.UserRMapper;
 import com.rob.uiapi.dto.models.UserQ;
 import com.rob.uiapi.dto.models.UserR;
@@ -51,8 +54,8 @@ public class UserRS implements UIApiRS<UserR, UserQ> {
 	@Autowired
 	private UserRMapper userRMapper;
 	
-	@Autowired
-	private UserMapper userMapper;
+	/*@Autowired
+	private UserMapper userMapper;*/
 	
 	private static final int MAX_RESULT_SIZE = 100;
 	private static final int DEFAULT_RESULT_SIZE = 20;
@@ -94,7 +97,7 @@ public class UserRS implements UIApiRS<UserR, UserQ> {
 	) throws Exception {
 		Validate.notEmpty(id, "Parametro obbligatorio mancante: id.");
 		
-		User user = userRepository.findById(id/*, applyViewCriteria(view)*/);
+		User user = userRepository.findById(id, applyViewCriteria(view));
 		
 		if (user == null) {
 			throw new NotFoundException("User con id " + id + " non trovato");
@@ -145,6 +148,24 @@ public class UserRS implements UIApiRS<UserR, UserQ> {
 		return criteria;
 		
 	}
+	
+	/**
+	 * Inizializzazione fetch
+	 * @param view
+	 * @return
+	 */
+	private Fetch applyViewCriteria(IView view) {
+		if (view == null) {
+			return FetchBuilder.none();
+		}
 
+		FetchBuilder fetchBuilder = new FetchBuilder();
+		
+		if (view.isAtLeast(Synthetic.value)) {
+			fetchBuilder.addOption(UserFetchHandler.FETCH_ROLES_PERMISSIONS);
+		}
+		
+		return fetchBuilder.build();
+	}
 
 }

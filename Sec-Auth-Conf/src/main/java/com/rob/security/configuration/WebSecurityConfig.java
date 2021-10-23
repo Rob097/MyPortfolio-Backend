@@ -1,6 +1,5 @@
 package com.rob.security.configuration;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +83,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	/**
 	 * Principal method of configuration for this class.
 	 * .cors() is needed to allow the application to manage the CORS POLICY errors.
-	 * The method is easy to understand if you red it.
+	 * The method is easy to understand if you read it.
 	 */
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -116,9 +115,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	//This can be customized as required
 	CorsConfigurationSource corsConfigurationSource() {
 	    CorsConfiguration configuration = new CorsConfiguration();
-	    List<String> allowOrigins = Arrays.asList(Properties.ALLOWED_ORIGIN);
-	    List<String> allowMethods = Arrays.asList("GET", "OPTIONS");
-	    List<String> allowHeaders = Arrays.asList("*");
+	    List<String> allowOrigins = Properties.ALLOWED_ORIGINS;
+	    List<String> allowMethods = Properties.ALLOW_METHODS;
+	    List<String> allowHeaders = Properties.ALLOW_HEADERS;
 	    configuration.setAllowedOrigins(allowOrigins);
 	    configuration.setAllowedMethods(allowMethods);
 	    configuration.setAllowedHeaders(allowHeaders);
