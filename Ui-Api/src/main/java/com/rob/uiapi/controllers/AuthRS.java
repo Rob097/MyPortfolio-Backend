@@ -43,8 +43,6 @@ import com.rob.security.payloads.response.JwtResponse;
 import com.rob.security.payloads.response.MessageResponse;
 import com.rob.uiapi.dto.mappers.UserMapper;
 import com.rob.uiapi.dto.models.UserR;
-import com.rob.uiapi.utils.CookieHelper;
-import com.rob.uiapi.utils.SameSite;
 
 @CrossOrigin(origins = "*", maxAge = 3600, allowCredentials = "false")
 @RestController
@@ -73,20 +71,7 @@ public class AuthRS {
 	private UserMapper userMapper;
 	
 	private Properties mainProperties = new Properties(PropertiesEnum.MAIN_PROPERTIES.getName());
-	private Properties macProperties = new Properties(PropertiesEnum.MAC_PROPERTIES.getName());
 
-	/*
-	 * @Autowired
-	 * 
-	 * @Qualifier("RoleServicesImpl") RoleServices roleServices;
-	 */
-
-	private final String TOKEN_COOKIE_NAME = Properties.TOKEN_COOKIE_NAME;
-	private final String REMEMBER_COOKIE_NAME = Properties.REMEMBER_COOKIE_NAME;
-	private final String PATH_COOKIES = Properties.PATH_COOKIES;
-
-	private Cookie token_cookie = null;
-	private Cookie remember_cookie = null;
 
 	/**
 	 * Used when a user try to login. It check if the params are ok and if they are,
@@ -127,8 +112,6 @@ public class AuthRS {
 		fetchBuilder.addOption(RoleFetchHandler.FETCH_PERMISSIONS);
 		criteria.setFetch(fetchBuilder.build());
 		List<Role> roles = roleRepository.findByCriteria(criteria);
-
-		setCookie(loginRequest.isRememberMe(), token, response);
 
 		return ResponseEntity.ok(new JwtResponse(token, "" + userDetails.getId(), userDetails.getUsername(),
 					userDetails.getEmail(), roles));
@@ -224,41 +207,6 @@ public class AuthRS {
 			e.printStackTrace();
 			return ResponseEntity.badRequest().body(new MessageResponse("User registration failed!"));
 		}
-	}
-
-	private void setCookie(boolean rememberMe, String token, HttpServletResponse response) {
-				
-		try {
-			
-			remember_cookie = new Cookie(REMEMBER_COOKIE_NAME, "" + rememberMe);
-			remember_cookie.setSecure(true); // Set this to true if you're working through https
-			remember_cookie.setHttpOnly(false);
-			remember_cookie.setDomain(mainProperties.getProperty(PropertiesEnum.JWT_CURRENT_DOMAIN.getName()));
-			remember_cookie.setPath(PATH_COOKIES); // global cookie accessible every where
-			
-
-			token_cookie = new Cookie(TOKEN_COOKIE_NAME, token);
-			token_cookie.setSecure(true); // Set this to true if you're working through https
-			token_cookie.setHttpOnly(false);
-			token_cookie.setDomain(mainProperties.getProperty(PropertiesEnum.JWT_CURRENT_DOMAIN.getName()));
-			token_cookie.setPath(PATH_COOKIES); // global cookie accessible every where
-			
-
-			if (!rememberMe) {
-				token_cookie.setMaxAge(Integer.parseInt(mainProperties.getProperty(PropertiesEnum.JWT_EXPIRATION.getName())) / 1000);
-				remember_cookie.setMaxAge(Integer.parseInt(mainProperties.getProperty(PropertiesEnum.JWT_EXPIRATION.getName())) / 1000);
-			} else {
-				token_cookie.setMaxAge((int) (Integer.parseInt(mainProperties.getProperty(PropertiesEnum.JWT_EXPIRATION_REMEMBER_ME.getName())) / 1000));
-				remember_cookie.setMaxAge((int) (Integer.parseInt(mainProperties.getProperty(PropertiesEnum.JWT_EXPIRATION_REMEMBER_ME.getName())) / 1000));
-			}
-
-			CookieHelper.createSetCookieHeader(response, remember_cookie, SameSite.NONE);
-			CookieHelper.createSetCookieHeader(response, token_cookie, SameSite.NONE);
-
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		
 	}
 
 	/*
