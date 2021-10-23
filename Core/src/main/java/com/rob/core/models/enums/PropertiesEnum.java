@@ -20,6 +20,7 @@ public enum PropertiesEnum {
 	JWT_EXPIRATION("jwtExpirationMs"),
 	JWT_EXPIRATION_REMEMBER_ME("jwtExpirationMsRememberMe"),
 	JWT_SECRET("jwtSecret"),
+	JWT_CURRENT_DOMAIN("jwtCurrentDomain"),
 	ENCRYPT_PASSWORD("secret.password"),
 	ENCRYPT_SALT("secret.salt"),
 	ENCRYPT_ENABLED("secret.enabled"),
