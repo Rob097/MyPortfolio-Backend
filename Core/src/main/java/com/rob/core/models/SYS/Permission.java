@@ -1,28 +1,24 @@
-package com.rob.core.models;
+package com.rob.core.models.SYS;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-
-import org.springframework.security.core.GrantedAuthority;
 
 import com.rob.core.utils.db.QueryFactory;
 import com.rob.core.utils.java.ValueObject;
 import com.rob.core.utils.java.WithID;
 
+public class Permission extends ValueObject implements WithID<Integer>{
 
-public class Role extends ValueObject implements GrantedAuthority, WithID<Integer>{
-
-	private static final long serialVersionUID = 7503486655601249201L;
+	public static final String Table = "SYS_PERMISSIONS";
 	
-	public static final String Table = "role";
-	
-	/** Campi previsti in tabella role */
+	/** Campi previsti in tabella permission */
 	public enum Field {
 
-		ROLE_ID("ROLE_ID"),
+		PERMISSION_ID("PERMISSION_ID"),
 		
-		NAME("NAME")
+		NAME("NAME"),
+		
+		DESCRIPTION("DESCRIPTION")
 		;
 		
 		private String value;
@@ -41,15 +37,16 @@ public class Role extends ValueObject implements GrantedAuthority, WithID<Intege
 		}
 		
 	}
-
+	
 	private Integer id;
 	
 	private String name;
-
-	private List<Permission> permissions;
 	
+	private String description;
+	
+
 	/** Costruttore oggetto */
-	public Role() {
+	public Permission() {
 		super();
 	}
 
@@ -59,7 +56,7 @@ public class Role extends ValueObject implements GrantedAuthority, WithID<Intege
 	 * @param rst
 	 * @throws SQLException
 	 */
-	public Role(ResultSet rst) throws SQLException {
+	public Permission(ResultSet rst) throws SQLException {
 		this(rst, "");
 	}
 
@@ -70,29 +67,25 @@ public class Role extends ValueObject implements GrantedAuthority, WithID<Intege
 	 * @param prefix
 	 * @throws SQLException
 	 */
-	public Role(ResultSet rst, String prefix) throws SQLException {
+	public Permission(ResultSet rst, String prefix) throws SQLException {
 		super();
 
-		this.setId(rst.getInt(Field.ROLE_ID.getValue(prefix)));
+		this.setId(rst.getInt(Field.PERMISSION_ID.getValue(prefix)));
 		this.setName(rst.getString(Field.NAME.getValue(prefix)));
+		this.setDescription(rst.getString(Field.DESCRIPTION.getValue(prefix)));
 		
 	}
 
-	public static Role byId(Integer id) {
+	public static Permission byId(Integer id) {
 		if (id == null) {
 			return null;
 		}
 		
-		Role role = new Role();
-		role.setId(id);
+		Permission permission = new Permission();
+		permission.setId(id);
 		
-		return role;
+		return permission;
 	}
-
-	@Override
-	public String getAuthority() {
-		return ""+this.getId();
-	}	
 	
 	public Integer getId() {
 		return id;
@@ -107,12 +100,12 @@ public class Role extends ValueObject implements GrantedAuthority, WithID<Intege
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public List<Permission> getPermissions() {
-		return permissions;
+	
+	public String getDescription() {
+		return description;
 	}
-	public void setPermissions(List<Permission> permissions) {
-		this.permissions = permissions;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 }

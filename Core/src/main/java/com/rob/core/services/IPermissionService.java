@@ -2,7 +2,7 @@ package com.rob.core.services;
 
 import java.sql.SQLException;
 
-import com.rob.core.models.Permission;
+import com.rob.core.models.SYS.Permission;
 
 public interface IPermissionService {
 

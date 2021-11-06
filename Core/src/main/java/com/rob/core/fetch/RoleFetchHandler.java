@@ -18,8 +18,8 @@ import com.rob.core.fetch.modules.Fetch;
 import com.rob.core.fetch.modules.Fetch.Mapping;
 import com.rob.core.fetch.modules.Fetch.Option;
 import com.rob.core.fetch.modules.Fetch.Strategy;
-import com.rob.core.models.Permission;
-import com.rob.core.models.Role;
+import com.rob.core.models.SYS.Permission;
+import com.rob.core.models.SYS.Role;
 import com.rob.core.repositories.IPermissionRepository;
 
 @Component

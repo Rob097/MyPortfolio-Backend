@@ -18,7 +18,7 @@ import com.rob.core.database.UserSearchCriteria;
 import com.rob.core.fetch.UserFetchHandler;
 import com.rob.core.fetch.modules.Fetch;
 import com.rob.core.fetch.modules.FetchBuilder;
-import com.rob.core.models.User;
+import com.rob.core.models.SYS.User;
 import com.rob.core.utils.db.PreparedStatementBuilder;
 
 @Repository

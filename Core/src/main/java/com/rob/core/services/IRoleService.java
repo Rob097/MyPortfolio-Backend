@@ -2,7 +2,7 @@ package com.rob.core.services;
 
 import java.sql.SQLException;
 
-import com.rob.core.models.Role;
+import com.rob.core.models.SYS.Role;
 
 public interface IRoleService {
 

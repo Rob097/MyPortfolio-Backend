@@ -18,9 +18,9 @@ import com.rob.core.fetch.modules.Fetch;
 import com.rob.core.fetch.modules.Fetch.Mapping;
 import com.rob.core.fetch.modules.Fetch.Option;
 import com.rob.core.fetch.modules.Fetch.Strategy;
+import com.rob.core.models.SYS.Role;
+import com.rob.core.models.SYS.User;
 import com.rob.core.fetch.modules.FetchBuilder;
-import com.rob.core.models.Role;
-import com.rob.core.models.User;
 import com.rob.core.repositories.IRoleRepository;
 
 @Component

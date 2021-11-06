@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import com.rob.core.database.UserSearchCriteria;
 import com.rob.core.fetch.UserFetchHandler;
 import com.rob.core.fetch.modules.FetchBuilder;
-import com.rob.core.models.Role;
-import com.rob.core.models.User;
+import com.rob.core.models.SYS.Role;
+import com.rob.core.models.SYS.User;
 import com.rob.core.repositories.IUserRepository;
 
 @Service

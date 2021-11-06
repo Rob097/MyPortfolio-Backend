@@ -46,6 +46,13 @@ public class PermissionSearchCriteria extends ValueObject {
 		return false;
 	}
 	
+	public boolean isJoinRoles() {
+		if(this.roleId!=null) {
+			return true;
+		}
+		return false;
+	}
+	
 	public IntegerList getIds() {
 		return ids;
 	}

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.rob.core.database.RoleSearchCriteria;
 import com.rob.core.fetch.modules.Fetch;
-import com.rob.core.models.Role;
+import com.rob.core.models.SYS.Role;
 
 public interface IRoleRepository {
 

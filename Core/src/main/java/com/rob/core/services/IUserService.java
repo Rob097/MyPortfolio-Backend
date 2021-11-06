@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import com.rob.core.models.User;
+import com.rob.core.models.SYS.User;
 
 
 public interface IUserService {	

@@ -1,24 +1,29 @@
-package com.rob.core.models;
+package com.rob.core.models.SYS;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
+import org.springframework.security.core.GrantedAuthority;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rob.core.utils.db.QueryFactory;
 import com.rob.core.utils.java.ValueObject;
 import com.rob.core.utils.java.WithID;
 
-public class Permission extends ValueObject implements WithID<Integer>{
 
-	public static final String Table = "permission";
+public class Role extends ValueObject implements GrantedAuthority, WithID<Integer>{
+
+	private static final long serialVersionUID = 7503486655601249201L;
 	
-	/** Campi previsti in tabella permission */
+	public static final String Table = "SYS_ROLES";
+	
+	/** Campi previsti in tabella role */
 	public enum Field {
 
-		ID("ID"),
+		ROLE_ID("ROLE_ID"),
 		
-		NAME("NAME"),
-		
-		DESCRIPTION("DESCRIPTION")
+		NAME("NAME")
 		;
 		
 		private String value;
@@ -37,16 +42,15 @@ public class Permission extends ValueObject implements WithID<Integer>{
 		}
 		
 	}
-	
+
 	private Integer id;
 	
 	private String name;
-	
-	private String description;
-	
 
+	private List<Permission> permissions;
+	
 	/** Costruttore oggetto */
-	public Permission() {
+	public Role() {
 		super();
 	}
 
@@ -56,7 +60,7 @@ public class Permission extends ValueObject implements WithID<Integer>{
 	 * @param rst
 	 * @throws SQLException
 	 */
-	public Permission(ResultSet rst) throws SQLException {
+	public Role(ResultSet rst) throws SQLException {
 		this(rst, "");
 	}
 
@@ -67,25 +71,30 @@ public class Permission extends ValueObject implements WithID<Integer>{
 	 * @param prefix
 	 * @throws SQLException
 	 */
-	public Permission(ResultSet rst, String prefix) throws SQLException {
+	public Role(ResultSet rst, String prefix) throws SQLException {
 		super();
 
-		this.setId(rst.getInt(Field.ID.getValue(prefix)));
+		this.setId(rst.getInt(Field.ROLE_ID.getValue(prefix)));
 		this.setName(rst.getString(Field.NAME.getValue(prefix)));
-		this.setDescription(rst.getString(Field.DESCRIPTION.getValue(prefix)));
 		
 	}
 
-	public static Permission byId(Integer id) {
+	public static Role byId(Integer id) {
 		if (id == null) {
 			return null;
 		}
 		
-		Permission permission = new Permission();
-		permission.setId(id);
+		Role role = new Role();
+		role.setId(id);
 		
-		return permission;
+		return role;
 	}
+
+	@Override
+	@JsonIgnore
+	public String getAuthority() {
+		return ""+this.getId();
+	}	
 	
 	public Integer getId() {
 		return id;
@@ -100,12 +109,12 @@ public class Permission extends ValueObject implements WithID<Integer>{
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	public String getDescription() {
-		return description;
+
+	public List<Permission> getPermissions() {
+		return permissions;
 	}
-	public void setDescription(String description) {
-		this.description = description;
+	public void setPermissions(List<Permission> permissions) {
+		this.permissions = permissions;
 	}
 	
 }

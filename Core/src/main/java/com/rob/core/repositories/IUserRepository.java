@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.rob.core.database.UserSearchCriteria;
 import com.rob.core.fetch.modules.Fetch;
-import com.rob.core.models.User;
+import com.rob.core.models.SYS.User;
 
 public interface IUserRepository {
 	

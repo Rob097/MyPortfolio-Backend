@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.rob.core.database.PermissionSearchCriteria;
-import com.rob.core.models.Permission;
+import com.rob.core.models.SYS.Permission;
 
 public interface IPermissionRepository {
 

@@ -2,7 +2,7 @@ package com.rob.core.database;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.rob.core.models.User;
+import com.rob.core.models.SYS.User;
 import com.rob.core.utils.db.PreparedStatementBuilder;
 import com.rob.core.utils.db.QueryFactory;
 
@@ -15,7 +15,7 @@ public class UserManagerQuery extends QueryFactory {
 	 */
 	public PreparedStatementBuilder sqlFindByCriteria(UserSearchCriteria criteria) {
 		PreparedStatementBuilder psb = new PreparedStatementBuilder();
-		//psb.setValidCriteria(criteria.isValidCriteria());
+		psb.setValidCriteria(criteria.isValidCriteria());
 		
 		if (criteria.getRange() != null) {
 			psb.setRange(criteria.getRange());
@@ -31,15 +31,10 @@ public class UserManagerQuery extends QueryFactory {
 		
 		psb.append(" FROM " + User.Table + " USR ");
 		
-		/*if(criteria.isJoinSysUser()) {
-			psb.append(" INNER JOIN SYS_USERS U ");
-			psb.append(" ON L.ENTRY_USER_ID = U.USER_ID");
-		}*/
-		
 		psb.append(" WHERE 1=1 ");
 		
 		if (StringUtils.isNoneBlank(criteria.getId())) {
-			psb.append(" AND USR.ID = ").addBindVariable("USER_ID", criteria.getId());
+			psb.append(" AND USR.USER_ID = ").addBindVariable("USER_ID", criteria.getId());
 		}
 
 		if (StringUtils.isNoneBlank(criteria.getUsername())) {
@@ -64,7 +59,7 @@ public class UserManagerQuery extends QueryFactory {
 		
 		psb.append(" INSERT INTO ").append(User.Table).append(" (");
 		
-		psb.append("  ID");
+		psb.append("  USER_ID");
 		psb.append(", USERNAME");
 		psb.append(", PASSWORD");
 		psb.append(", EMAIL");
@@ -73,7 +68,7 @@ public class UserManagerQuery extends QueryFactory {
 		
 		psb.append(" ) VALUES ( ");
 		
-		psb.addBindVariable("ID", data.getId());
+		psb.addBindVariable("USER_ID", data.getId());
 		psb.append(" , ").addBindVariable("USERNAME", data.getUsername());
 		psb.append(" , ").addBindVariableWithCase("PASSWORD", data.getPassword(), false);
 		psb.append(" , ").addBindVariable("EMAIL", data.getEmail());
@@ -96,7 +91,7 @@ public class UserManagerQuery extends QueryFactory {
 	public PreparedStatementBuilder sqlCreateRoleRelation(int userId, int roleId) {
 		PreparedStatementBuilder psb = new PreparedStatementBuilder();
 		
-		psb.append(" INSERT INTO ").append("user_roles").append(" (");
+		psb.append(" INSERT INTO ").append("SYS_USER_ROLES").append(" (");
 		
 		psb.append("  USER_ID");
 		psb.append(", ROLE_ID");

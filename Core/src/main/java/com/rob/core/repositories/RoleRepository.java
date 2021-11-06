@@ -18,7 +18,7 @@ import com.rob.core.database.RoleSearchCriteria;
 import com.rob.core.fetch.RoleFetchHandler;
 import com.rob.core.fetch.modules.Fetch;
 import com.rob.core.fetch.modules.FetchBuilder;
-import com.rob.core.models.Role;
+import com.rob.core.models.SYS.Role;
 import com.rob.core.utils.db.PreparedStatementBuilder;
 
 @Repository

@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
 
+import com.rob.core.models.SYS.User;
 import com.rob.core.utils.db.QueryFactory;
 import com.rob.core.utils.java.ValueObject;
 import com.rob.core.utils.java.WithID;

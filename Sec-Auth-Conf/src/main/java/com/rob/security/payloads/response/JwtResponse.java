@@ -2,7 +2,7 @@ package com.rob.security.payloads.response;
 
 import java.util.List;
 
-import com.rob.core.models.Role;
+import com.rob.core.models.SYS.Role;
 
 /**
  * @author Roberto97 This is the entity used for the response of JWT. It allows

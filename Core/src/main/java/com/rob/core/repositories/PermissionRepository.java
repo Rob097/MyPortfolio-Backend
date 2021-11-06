@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import com.rob.core.database.PermissionManagerQuery;
 import com.rob.core.database.PermissionSearchCriteria;
-import com.rob.core.models.Permission;
+import com.rob.core.models.SYS.Permission;
 import com.rob.core.utils.db.PreparedStatementBuilder;
 
 @Repository

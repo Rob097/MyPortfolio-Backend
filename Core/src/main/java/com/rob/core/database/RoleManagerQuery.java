@@ -1,6 +1,6 @@
 package com.rob.core.database;
 
-import com.rob.core.models.Role;
+import com.rob.core.models.SYS.Role;
 import com.rob.core.utils.db.PreparedStatementBuilder;
 import com.rob.core.utils.db.QueryFactory;
 
@@ -30,7 +30,7 @@ public class RoleManagerQuery extends QueryFactory {
 		psb.append(" FROM " + Role.Table + " ROL ");
 		
 		if(criteria.isJoinUser()) {
-			psb.append(" INNER JOIN user_roles USR_ROL ");
+			psb.append(" INNER JOIN SYS_USER_ROLES USR_ROL ");
 			psb.append(" ON ROL.ROLE_ID = USR_ROL.ROLE_ID");
 		}
 		
@@ -58,12 +58,12 @@ public class RoleManagerQuery extends QueryFactory {
 		
 		psb.append(" INSERT INTO ").append(Role.Table).append(" (");
 		
-		psb.append("  ID");
+		psb.append("  ROLE_ID");
 		psb.append(", NAME");
 		
 		psb.append(" ) VALUES ( ");
 		
-		psb.addBindVariable("ID", data.getId());
+		psb.addBindVariable("ROLE_ID", data.getId());
 		psb.append(" , ").addBindVariable("NAME", data.getName());
 		
 		psb.append(" ) ");

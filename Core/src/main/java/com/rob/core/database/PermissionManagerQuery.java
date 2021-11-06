@@ -1,6 +1,6 @@
 package com.rob.core.database;
 
-import com.rob.core.models.Permission;
+import com.rob.core.models.SYS.Permission;
 import com.rob.core.utils.db.PreparedStatementBuilder;
 import com.rob.core.utils.db.QueryFactory;
 
@@ -13,7 +13,7 @@ public class PermissionManagerQuery extends QueryFactory {
 	 */
 	public PreparedStatementBuilder sqlFindByCriteria(PermissionSearchCriteria criteria) {
 		PreparedStatementBuilder psb = new PreparedStatementBuilder();
-		//psb.setValidCriteria(criteria.isValidCriteria());
+		psb.setValidCriteria(criteria.isValidCriteria());
 		
 		if (criteria.getRange() != null) {
 			psb.setRange(criteria.getRange());
@@ -29,20 +29,20 @@ public class PermissionManagerQuery extends QueryFactory {
 		
 		psb.append(" FROM " + Permission.Table + " PRM ");
 		
-		/*if(criteria.isJoinSysUser()) {
-			psb.append(" INNER JOIN SYS_USERS U ");
-			psb.append(" ON L.ENTRY_USER_ID = U.USER_ID");
-		}*/
+		if(criteria.isJoinRoles()) {
+			psb.append(" INNER JOIN SYS_ROLE_PERMISSIONS ROL_PRM ");
+			psb.append(" ON PRM.PERMISSION_ID = ROL_PRM.PERMISSION_ID");
+		}
 		
 		psb.append(" WHERE 1=1 ");
 		
 		if (criteria.getIds()!= null && !criteria.getIds().isEmpty()) {
-			psb.append(" AND PRM.ID IN ").addBindVariable("PERMISSION_ID", criteria.getIds());
+			psb.append(" AND PRM.PERMISSION_ID IN ").addBindVariable("PERMISSION_ID", criteria.getIds());
 		}
 
-		/*if (StringUtils.isNoneBlank(criteria.getRoleId())) {
-			psb.append(" AND USR.USERNAME = ").addBindVariable("ROLE_ID", criteria.getRoleId());
-		}*/
+		if (criteria.getRoleId()!=null) {
+			psb.append(" AND ROL_PRM.ROLE_ID = ").addBindVariable("ROLE_ID", criteria.getRoleId());
+		}
 
 		return psb;
 		
@@ -58,13 +58,13 @@ public class PermissionManagerQuery extends QueryFactory {
 		
 		psb.append(" INSERT INTO ").append(Permission.Table).append(" (");
 		
-		psb.append("  ID");
+		psb.append("  PERMISSION_ID");
 		psb.append(", NAME");
 		psb.append(", DESCRIPTION");
 		
 		psb.append(" ) VALUES ( ");
 		
-		psb.addBindVariable("ID", data.getId());
+		psb.addBindVariable("PERMISSION_ID", data.getId());
 		psb.append(" , ").addBindVariable("NAME", data.getName());
 		psb.append(" , ").addBindVariable("DESCRIPTION", data.getDescription());
 		
