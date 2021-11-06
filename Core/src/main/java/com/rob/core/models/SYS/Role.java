@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rob.core.utils.db.QueryFactory;
 import com.rob.core.utils.java.ValueObject;
 import com.rob.core.utils.java.WithID;
@@ -91,7 +90,6 @@ public class Role extends ValueObject implements GrantedAuthority, WithID<Intege
 	}
 
 	@Override
-	@JsonIgnore
 	public String getAuthority() {
 		return ""+this.getId();
 	}	

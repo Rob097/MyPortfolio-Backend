@@ -227,34 +227,34 @@ public class User extends ValueObject implements UserDetails, WithID<Integer> {
 	}
 
 	@Override
-	@JsonIgnore
+	//@JsonIgnore
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return this.getRoles();
 	}
 
 	@Override
-	@JsonIgnore
+	//@JsonIgnore
 	public boolean isAccountNonExpired() {
 		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
-	@JsonIgnore
+	//@JsonIgnore
 	public boolean isAccountNonLocked() {
 		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
-	@JsonIgnore
+	//@JsonIgnore
 	public boolean isCredentialsNonExpired() {
 		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
-	@JsonIgnore
+	//@JsonIgnore
 	public boolean isEnabled() {
 		// TODO Auto-generated method stub
 		return true;
