@@ -56,3 +56,12 @@ The class used for our Transaction Process are:
 * [PreparedStatementBuilder](https://github.com/Rob097/MyPortfolio-Backend/blob/ace0edb8f321153c1cb10d05e3d6bd45dde6abb4/Core/src/main/java/com/rob/core/utils/db/PreparedStatementBuilder.java): Special Class to build dynamic query. It calls all the commands to open the connection, execute the query, close the connection.
 * [SqlDataSource](https://github.com/Rob097/MyPortfolio-Backend/blob/ace0edb8f321153c1cb10d05e3d6bd45dde6abb4/Core/src/main/java/com/rob/core/utils/db/SqlDataSource.java): Init the connectionPool and contains the singletone instnce of the custom SqlDataSource
 * [SqlConnection](https://github.com/Rob097/MyPortfolio-Backend/blob/ace0edb8f321153c1cb10d05e3d6bd45dde6abb4/Core/src/main/java/com/rob/core/utils/db/SqlConnection.java): Represents the custom class of the connection to the DB.
+
+## Services
+The service contains all the business logic of the project. They can call other services or repositories.
+
+## Repositories
+The repositories are used to link the BE to the DB. They just create the PSB and they initialize the connection, execute the queries, call the fetches and return the elements.
+
+## ManagerQuery
+The managerQueries are used to create the query thanks to the searchCriteria.
