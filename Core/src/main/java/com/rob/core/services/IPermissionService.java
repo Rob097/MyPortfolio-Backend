@@ -8,4 +8,6 @@ public interface IPermissionService {
 
 	Permission create(Permission permission) throws SQLException;
 	
+	Permission update(Permission permission) throws SQLException;
+	
 }

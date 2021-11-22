@@ -1,4 +1,4 @@
-package com.rob.uiapi.utils.messages;
+package com.rob.core.utils.java.messages;
 
 import java.util.ArrayList;
 import java.util.Arrays;

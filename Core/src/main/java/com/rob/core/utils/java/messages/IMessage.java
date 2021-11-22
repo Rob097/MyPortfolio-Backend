@@ -1,4 +1,4 @@
-package com.rob.uiapi.utils.messages;
+package com.rob.core.utils.java.messages;
 
 import com.rob.core.utils.java.WithCode;
 

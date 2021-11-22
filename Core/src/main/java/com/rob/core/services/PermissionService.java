@@ -17,7 +17,11 @@ public class PermissionService implements IPermissionService {
 
 	@Override
 	public Permission create(Permission permission) throws SQLException {
-		Validate.notNull(permission, "Mandatory paramete is missing: user");
+		Validate.notNull(permission, "Mandatory paramete is missing: permission");
+		Validate.notNull(permission.getId(), "L'identificativo è un campo obbligatorio.");
+		
+		Permission actual = permissionRepository.findById(permission.getId());
+		Validate.isTrue(actual==null, "Esiste già un privilegio con id + " + permission.getId());
 
 		permission = permissionRepository.create(permission);
 
@@ -26,5 +30,19 @@ public class PermissionService implements IPermissionService {
 		return permission;
 	}
 
+	@Override
+	public Permission update(Permission permission) throws SQLException {
+		Validate.notNull(permission, "Mandatory paramete is missing: permission");
+		Validate.notNull(permission.getId(), "L'identificativo è un campo obbligatorio.");
+		
+		Permission actual = permissionRepository.findById(permission.getId());
+		Validate.isTrue(actual!=null, "Non esiste nessun privilegio con id + " + permission.getId());
+
+		permission = permissionRepository.update(permission);
+
+		Validate.notNull(permission, "Error updating a permission.");
+		
+		return permission;
+	}
 
 }

@@ -107,5 +107,33 @@ public class RoleRepository implements IRoleRepository {
 		
 		return data;
 	}
+	
+	@Override
+	public int createPermissionsRelations(int roleId, int permissionId) throws SQLException {
+		
+		int created = 0;
+		try 
+		(PreparedStatementBuilder psb = this.queryFactory.sqlCreatePermissionsRelations(roleId, permissionId)) 
+		{
+			Connection con = DataSourceUtils.getConnection(dataSource);
+			created = psb.executeUpdate(con);
+		}
+		
+		return created;
+	}
+	
+	@Override
+	public int deleteAllPermissionsRelations(int roleId) throws SQLException {
+		
+		int created = 0;
+		try 
+		(PreparedStatementBuilder psb = this.queryFactory.sqlDeleteAllPermissionsRelations(roleId)) 
+		{
+			Connection con = DataSourceUtils.getConnection(dataSource);
+			created = psb.executeUpdate(con);
+		}
+		
+		return created;
+	}
 
 }

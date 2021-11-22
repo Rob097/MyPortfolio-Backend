@@ -116,5 +116,20 @@ public class UserRepository implements IUserRepository {
 		}
 		
 	}
+	
+	@Override
+	public User update(User data) throws SQLException {
+		Validate.notNull(data, "Oggetto non valido.");
+		Validate.notNull(data.getId(), "Oggetto non valido. Id mancante");
+		
+		try 
+		(PreparedStatementBuilder psb = this.queryFactory.sqlUpdate(data)) 
+		{
+			Connection con = DataSourceUtils.getConnection(dataSource);
+			psb.executeUpdate(con);
+		}
+		
+		return data;
+	}
 
 }

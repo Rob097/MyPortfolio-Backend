@@ -21,4 +21,6 @@ public interface IUserRepository {
 	
 	void createRoleRelation(int userId, int roleId) throws SQLException;
 	
+	User update(User data) throws SQLException;
+	
 }

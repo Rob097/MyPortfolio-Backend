@@ -19,4 +19,8 @@ public interface IRoleRepository {
 	
 	Role create(Role data) throws SQLException;
 	
+	int createPermissionsRelations(int roleId, int permissionId) throws SQLException;
+	
+	int deleteAllPermissionsRelations(int roleId) throws SQLException;
+	
 }

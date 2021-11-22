@@ -77,13 +77,27 @@ public class PermissionRepository implements IPermissionRepository {
 	@Override
 	public Permission create(Permission data) throws SQLException {
 		Validate.notNull(data, "Oggetto non valido.");
-		Validate.notNull(data.getId(), "Parametro obbligatorio mancante: Identificativo ruolo");
 		
 		/*String id = this.sysModuleService.getCounterMaster(SYSCounterEnum.LOG_ID.getId(), 100);
 		data.setId(id);*/		
 		
 		try 
 		(PreparedStatementBuilder psb = this.queryFactory.sqlCreate(data)) 
+		{
+			Connection con = DataSourceUtils.getConnection(dataSource);
+			psb.executeUpdate(con);
+		}
+		
+		return data;
+	}
+	
+	@Override
+	public Permission update(Permission data) throws SQLException {
+		Validate.notNull(data, "Oggetto non valido.");
+		Validate.notNull(data.getId(), "Parametro obbligatorio mancante: Identificativo privilegio");
+		
+		try 
+		(PreparedStatementBuilder psb = this.queryFactory.sqlUpdate(data)) 
 		{
 			Connection con = DataSourceUtils.getConnection(dataSource);
 			psb.executeUpdate(con);

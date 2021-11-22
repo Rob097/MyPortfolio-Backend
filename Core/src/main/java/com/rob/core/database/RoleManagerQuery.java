@@ -72,4 +72,47 @@ public class RoleManagerQuery extends QueryFactory {
 		
 	}
 	
+	/**
+	 * Metodo per l'inserimento del dato
+	 * @param roleId 
+	 * @param permission_id 
+	 * @return
+	 */
+	public PreparedStatementBuilder sqlCreatePermissionsRelations(int roleId, int permission_id) {
+		PreparedStatementBuilder psb = new PreparedStatementBuilder();
+		
+		psb.append(" INSERT INTO ").append("SYS_ROLE_PERMISSIONS").append(" (");
+		
+		psb.append("  ROLE_ID");
+		psb.append(", PERMISSION_ID");
+		
+		psb.append(" ) VALUES ( ");
+		
+		psb.addBindVariable("ROLE_ID", roleId);
+		psb.append(" , ").addBindVariable("PERMISSION_ID", permission_id);
+		
+		psb.append(" ) ");
+		
+		return psb;
+		
+	}
+	
+	/**
+	 * Metodo per l'inserimento del dato
+	 * @param roleId
+	 * @return
+	 */
+	public PreparedStatementBuilder sqlDeleteAllPermissionsRelations(int roleId) {
+		PreparedStatementBuilder psb = new PreparedStatementBuilder();
+		
+		psb.append(" DELETE FROM ").append("SYS_ROLE_PERMISSIONS");
+		
+		psb.append(" WHERE 1=1 ");
+		
+		psb.append(" AND ROLE_ID = ").addBindVariable("ROLE_ID", roleId);
+		
+		return psb;
+		
+	}
+	
 }

@@ -3,8 +3,8 @@ package com.rob.uiapi.utils;
 import org.springframework.http.ResponseEntity;
 
 import com.rob.uiapi.controllers.views.IView;
-import com.rob.uiapi.utils.messages.MessageResource;
-import com.rob.uiapi.utils.messages.MessageResources;
+import com.rob.core.utils.java.messages.MessageResource;
+import com.rob.core.utils.java.messages.MessageResources;
 import com.rob.core.utils.db.Range;
 
 

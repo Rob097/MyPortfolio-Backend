@@ -58,20 +58,41 @@ public class PermissionManagerQuery extends QueryFactory {
 		
 		psb.append(" INSERT INTO ").append(Permission.Table).append(" (");
 		
-		psb.append("  PERMISSION_ID");
-		psb.append(", NAME");
+		psb.append(" NAME");
 		psb.append(", DESCRIPTION");
 		
 		psb.append(" ) VALUES ( ");
 		
-		psb.addBindVariable("PERMISSION_ID", data.getId());
-		psb.append(" , ").addBindVariable("NAME", data.getName());
+		psb.addBindVariable("NAME", data.getName());
 		psb.append(" , ").addBindVariable("DESCRIPTION", data.getDescription());
 		
 		psb.append(" ) ");
 		
 		return psb;
 		
+	}
+	
+	/**
+	 * Metodo per l'aggiornamento del dato
+	 * @param data
+	 * @return
+	 */
+	public PreparedStatementBuilder sqlUpdate(Permission data) {
+		PreparedStatementBuilder psb = new PreparedStatementBuilder();
+
+		psb.append(" UPDATE ").append(Permission.Table);
+		psb.append(" SET ");
+		
+		if (data.getName() != null) {
+			psb.append(" NAME = ").addBindVariable("NAME", data.getName());
+		}
+		if (data.getDescription() != null) {
+			psb.append(" ,DESCRIPTION = ").addBindVariable("DESCRIPTION", data.getDescription());
+		}
+
+		psb.append("  WHERE PERMISSION_ID = ").addBindVariable("PERMISSION_ID", data.getId());		
+		
+		return psb;
 	}
 	
 }

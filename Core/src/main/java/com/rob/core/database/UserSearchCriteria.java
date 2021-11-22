@@ -56,6 +56,9 @@ public class UserSearchCriteria extends ValueObject {
 		if (StringUtils.isNotBlank(username)) {
 			return true;
 		}
+		if (StringUtils.isNotBlank(email)) {
+			return true;
+		}
 		
 		return false;
 	}

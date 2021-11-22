@@ -209,44 +209,4 @@ public class AuthRS {
 		}
 	}
 
-	/*
-	 * @PostMapping(value = "/getAll", produces = "application/json") public
-	 * ResponseEntity<?> listAllUsr() {
-	 * 
-	 * ArrayList<User> utenti = userService.loadAllUsers(); if (utenti == null ||
-	 * utenti.isEmpty()) { return ResponseEntity.badRequest().body(new
-	 * MessageResponse("Non è stato trovato alcun utente!")); }
-	 * 
-	 * return new ResponseEntity<ArrayList<User>>(utenti, HttpStatus.OK);
-	 * 
-	 * }
-	 * 
-	 * @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces =
-	 * "application/json") public ResponseEntity<?> getUserById(@PathVariable("id")
-	 * String Id) throws Exception {
-	 * 
-	 * Utente utente = userService.getUtenteModelById(Id);
-	 * 
-	 * if (utente == null) { return ResponseEntity.badRequest() .body(new
-	 * MessageResponse("Non è stato trovato alcun utente con qusto id!")); }
-	 * 
-	 * return new ResponseEntity<Utente>(utente, HttpStatus.OK);
-	 * 
-	 * }
-	 * 
-	 * @RequestMapping(value = "/role/{id}", method = RequestMethod.GET, produces =
-	 * "application/json") public ResponseEntity<?> getRoleyId(@PathVariable("id")
-	 * String Id) throws Exception {
-	 * 
-	 * // Role role = roleServices.getRoleById(Id).get(); Role role =
-	 * roleServices.findByName(ERole.ROLE_ADMIN).get();
-	 * 
-	 * if (role == null) { return ResponseEntity.badRequest() .body(new
-	 * MessageResponse("Non è stato trovato alcun utente con qusto id!")); }
-	 * 
-	 * return new ResponseEntity<Role>(role, HttpStatus.OK);
-	 * 
-	 * }
-	 */
-
 }

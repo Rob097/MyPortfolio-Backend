@@ -11,8 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import com.rob.uiapi.utils.messages.IMessage;
-import com.rob.uiapi.utils.messages.MessageResources;
+import com.rob.core.utils.java.messages.IMessage;
+import com.rob.core.utils.java.messages.MessageResources;
 import com.rob.core.utils.db.Range;
 import com.rob.core.utils.db.RangeUtils;
 

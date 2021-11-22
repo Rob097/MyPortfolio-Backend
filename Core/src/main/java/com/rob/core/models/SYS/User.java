@@ -9,7 +9,6 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rob.core.models.enums.SexEnum;
 import com.rob.core.utils.db.QueryFactory;
 import com.rob.core.utils.java.ValueObject;

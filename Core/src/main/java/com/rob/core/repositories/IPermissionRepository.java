@@ -15,5 +15,7 @@ public interface IPermissionRepository {
 	List<Permission> findByCriteria(PermissionSearchCriteria criteria) throws SQLException;
 	
 	Permission create(Permission data) throws SQLException;
+
+	Permission update(Permission data) throws SQLException;
 	
 }

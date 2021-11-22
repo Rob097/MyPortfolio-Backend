@@ -64,5 +64,18 @@ public class UserService implements IUserService, UserDetailsService {
 		return user;
 		
 	}
+	
+	@Override
+	public User update(User user) throws SQLException {
+		Validate.notNull(user, "Mandatory paramete is missing: user");
+		Validate.notNull(user.getId(), "Mandatory paramete is missing: Id");
+
+		userRepository.update(user);		
+
+		Validate.notNull(user, "Error updating new user.");
+		
+		return user;
+		
+	}
 
 }

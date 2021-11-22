@@ -14,4 +14,6 @@ public interface IUserService {
 	
 	User create(User user) throws SQLException;
 	
+	User update(User user) throws SQLException;
+	
 }

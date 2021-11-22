@@ -107,4 +107,40 @@ public class UserManagerQuery extends QueryFactory {
 		
 	}
 	
+	/**
+	 * Metodo per l'aggiornamento del dato
+	 * @param data
+	 * @return
+	 */
+	public PreparedStatementBuilder sqlUpdate(User data) {
+		PreparedStatementBuilder psb = new PreparedStatementBuilder();
+
+		psb.append(" UPDATE ").append(User.Table);
+		psb.append(" SET ");
+		
+		if (data.getName() != null) {
+			psb.append(" ,NAME = ").addBindVariable("NAME", data.getName());
+		}
+		if (data.getSurname() != null) {
+			psb.append(" ,SURNAME = ").addBindVariable("SURNAME", data.getSurname());
+		}
+		if (data.getAge() != null) {
+			psb.append(" ,AGE = ").addBindVariable("AGE", data.getAge());
+		}
+		if (data.getSex() != null) {
+			psb.append(" ,SEX = ").addBindVariable("SEX", data.getSex().getId());
+		}
+		if (data.getAddress() != null) {
+			psb.append(" ,ADDRESS = ").addBindVariable("ADDRESS", data.getAddress());
+		}
+		//Password can be updated only by patch Request, not put.
+		if (data.getPassword() != null) {
+			psb.append(" ,PASSWORD = ").addBindVariable("PASSWORD", data.getPassword());
+		}
+
+		psb.append("  WHERE USER_ID = ").addBindVariable("USER_ID", data.getId());		
+		
+		return psb;
+	}
+	
 }
