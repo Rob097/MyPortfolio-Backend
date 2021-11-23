@@ -148,6 +148,11 @@ public class UserRS implements UIApiRS<UserR, UserQ> {
 		
 		User data = userMapper.map(input);
 		
+		// I don't want to update these fields by put requests, only patch.
+		data.setUsername(null);
+		data.setEmail(null);
+		data.setPassword(null);
+		
 		data = userService.update(data);
 		
 		if (data != null) {
@@ -183,7 +188,19 @@ public class UserRS implements UIApiRS<UserR, UserQ> {
 		}
 
 		for (PatchOperation operation : operations) {
-			if (operation.getPath().matches("^/password") && operation.getOp() == PatchOperation.Op.replace) {
+			if (operation.getPath().matches("^/username") && operation.getOp() == PatchOperation.Op.replace) {
+				TypeReference<String> tr = new TypeReference<String>() {
+				};
+				String username = jacksonObjectMapper.readValue(operation.getValue().getValue(), tr);
+				user.setUsername(username);
+				isToUpdate = true;
+			} else if (operation.getPath().matches("^/email") && operation.getOp() == PatchOperation.Op.replace) {
+				TypeReference<String> tr = new TypeReference<String>() {
+				};
+				String email = jacksonObjectMapper.readValue(operation.getValue().getValue(), tr);
+				user.setEmail(email);
+				isToUpdate = true;
+			} else if (operation.getPath().matches("^/password") && operation.getOp() == PatchOperation.Op.replace) {
 				TypeReference<String> tr = new TypeReference<String>() {
 				};
 				String password = jacksonObjectMapper.readValue(operation.getValue().getValue(), tr);
@@ -195,6 +212,7 @@ public class UserRS implements UIApiRS<UserR, UserQ> {
 		Message message = null;
 		if(isToUpdate) {
 			user = userService.update(user);
+			message = new Message("Aggiornamento effettuato con successo.");
 		} else {
 			message = new Message("Nessun aggiornamento effettuato.");
 		}

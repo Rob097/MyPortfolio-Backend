@@ -19,9 +19,6 @@ public class AuthenticationUserService implements IAuthenticationUserService, Us
 
 	@Autowired
     private IUserService userService;
-	
-	/*@PersistenceContext
-    EntityManager entityManager;*/
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

@@ -69,9 +69,9 @@ public class UserManagerQuery extends QueryFactory {
 		psb.append(" ) VALUES ( ");
 		
 		psb.addBindVariable("USER_ID", data.getId());
-		psb.append(" , ").addBindVariable("USERNAME", data.getUsername());
+		psb.append(" , ").addBindVariableWithCase("USERNAME", data.getUsername(), false);
 		psb.append(" , ").addBindVariableWithCase("PASSWORD", data.getPassword(), false);
-		psb.append(" , ").addBindVariable("EMAIL", data.getEmail());
+		psb.append(" , ").addBindVariableWithCase("EMAIL", data.getEmail(), false);
 		psb.append(" , ").addBindVariable("NAME", data.getName());
 		psb.append(" , ").addBindVariable("SURNAME", data.getSurname());
 		
@@ -118,6 +118,8 @@ public class UserManagerQuery extends QueryFactory {
 		psb.append(" UPDATE ").append(User.Table);
 		psb.append(" SET ");
 		
+		psb.append(" USER_ID = ").addBindVariable("USER_ID", data.getId());
+		
 		if (data.getName() != null) {
 			psb.append(" ,NAME = ").addBindVariable("NAME", data.getName());
 		}
@@ -133,9 +135,16 @@ public class UserManagerQuery extends QueryFactory {
 		if (data.getAddress() != null) {
 			psb.append(" ,ADDRESS = ").addBindVariable("ADDRESS", data.getAddress());
 		}
-		//Password can be updated only by patch Request, not put.
+		
+		//The following fields can be updated only by patch Request, not put.
 		if (data.getPassword() != null) {
-			psb.append(" ,PASSWORD = ").addBindVariable("PASSWORD", data.getPassword());
+			psb.append(" ,PASSWORD = ").addBindVariableWithCase("PASSWORD", data.getPassword(), false);
+		}
+		if (data.getEmail() != null) {
+			psb.append(" ,EMAIL = ").addBindVariableWithCase("EMAIL", data.getEmail(), false);
+		}
+		if (data.getUsername() != null) {
+			psb.append(" ,USERNAME = ").addBindVariableWithCase("USERNAME", data.getUsername(), false);
 		}
 
 		psb.append("  WHERE USER_ID = ").addBindVariable("USER_ID", data.getId());		
